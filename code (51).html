@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Pricing App</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        /* --- Enhanced CSS Styles with Animations --- */
+
+        /* --- Color Palette --- */
+        :root {
+            --primary-color: #007bff;
+            --primary-color-darker: #0056b3;
+            --secondary-color: #6c757d;
+            --background-color: #f8f9fa;
+            --card-background: #ffffff;
+            --card-header-background: #e9ecef;
+            --text-color-dark: #343a40;
+            --text-color-light: #ffffff;
+            --accent-color: #28a745;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            padding: 15px;
+            overflow-x: auto;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            background-color: var(--background-color);
+            color: var(--text-color-dark);
+            overflow: auto !important;
+        }
+
+        #app-container {
+            width: 95%;
+            max-width: 700px;
+            margin: 20px auto;
+            background-color: var(--card-background);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        /* --- Top Actions Buttons --- */
+        .top-actions {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .top-actions button {
+            padding: 8px 12px;
+            border: none;
+            background-color: var(--secondary-color);
+            color: var(--text-color-light);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .top-actions button:hover {
+            background-color: var(--secondary-color);
+            opacity: 0.8;
+            transform: scale(1.05);
+        }
+
+        /* --- Card Styling --- */
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            background-color: var(--card-header-background);
+            color: var(--text-color-dark);
+            font-weight: bold;
+            padding: 12px 20px;
+            border-bottom: 1px solid #ddd;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        /* --- Form Styling --- */
+        .form-group {
+            margin-bottom: 1rem; /* Further reduced margin-bottom for more compact layout */
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap; /* Allow wrapping for smaller screens */
+        }
+
+        .form-group label {
+            font-weight: 500;
+            margin-bottom: 0;
+            margin-right: 10px;
+            color: var(--text-color-dark);
+            text-align: left;
+            flex-shrink: 0;
+            width: auto;
+            white-space: nowrap; /* Prevent label text from wrapping */
+        }
+
+        .form-control {
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            padding: 0.6rem 0.7rem; /* Slightly smaller padding */
+            box-shadow: none !important;
+            transition: border-color 0.3s ease;
+            vertical-align: middle;
+            text-align: right;
+            flex-grow: 1;
+            min-width: 0;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+        }
+
+        .adjustable-width.code-input {
+            width: 120px; /* Further reduced width */
+        }
+
+        .adjustable-width.type-select {
+            width: 100px; /* Width for type select */
+        }
+
+        .adjustable-width.price-input {
+            width: 100px; /* Further reduced width */
+        }
+
+        .adjustable-width.unit-input {
+            width: 80px; /* Width for unit inputs */
+        }
+
+        .adjustable-width.discount-input,
+        .adjustable-width.vat-select {
+            width: 90px; /* Width for discount and vat */
+        }
+
+
+        .inline-form {
+            display: flex;
+            align-items: center;
+            gap: 8px; /* Reduced gap in inline forms */
+        }
+
+        .inline-form .form-control {
+            margin-bottom: 0;
+        }
+
+        /* --- Buttons (General) --- */
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: var(--text-color-light);
+            border-radius: 8px;
+            padding: 0.6rem 1rem; /* Slightly smaller button padding */
+            transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        }
+
+        .btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+            background-color: var(--primary-color-darker) !important;
+            border-color: var(--primary-color-darker) !important;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            transform: scale(1.02);
+        }
+
+        .btn-secondary, .btn-danger, .btn-info {
+            border-radius: 8px;
+            padding: 0.5rem 0.9rem; /* Slightly smaller button padding */
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        .btn-secondary:hover, .btn-danger:hover, .btn-info:hover {
+            transform: scale(1.02);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        /* --- Entries Table Styling --- */
+        .table-responsive {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: auto;
+        }
+
+        #entriesTable {
+            margin-bottom: 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        #entriesTable thead th {
+            background-color: var(--card-header-background);
+            color: var(--text-color-dark);
+            font-weight: bold;
+            padding: 8px 12px; /* Smaller header padding */
+            border-bottom: 2px solid #ddd;
+            text-align: left;
+        }
+
+        #entriesTable tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        #entriesTable tbody tr:hover {
+            background-color: #f2f2f2;
+            transition: background-color 0.2s ease;
+        }
+
+        #entriesTable td {
+            padding: 6px 10px; /* Smaller cell padding */
+            border-bottom: 1px solid #eee;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: center;
+        }
+
+        #entriesTable tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* --- Message Container Animation --- */
+        #message-container {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 123, 255, 0.9);
+            color: var(--text-color-light);
+            padding: 10px 15px; /* Smaller message padding */
+            border-radius: 8px;
+            z-index: 1100;
+            opacity: 0;
+            transition: opacity 0.4s ease, top 0.4s ease;
+            top: -50px;
+        }
+
+        #message-container.show {
+            opacity: 1;
+            top: 20px;
+        }
+
+        #message-container.error {
+            background-color: rgba(220, 53, 69, 0.9);
+        }
+
+        /* --- Loading Indicator Styles --- */
+        #loading-indicator {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.7);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+
+        /* --- Database Popup Styling and Animation --- */
+        #databasePopup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.95);
+            background-color: var(--card-background);
+            padding: 20px; /* Smaller popup padding */
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            z-index: 1050;
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        #databasePopup.show {
+            display: block;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        #databasePopup h3 {
+            margin-top: 0;
+            margin-bottom: 12px; /* Smaller popup heading margin */
+            color: var(--text-color-dark);
+        }
+
+        #databasePopup #databaseTable {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        #databasePopup #databaseTable th, #databasePopup #databaseTable td {
+            padding: 6px 10px; /* Smaller popup table cell padding */
+            border-bottom: 1px solid #eee;
+            text-align: left;
+        }
+
+        #databasePopup #databaseTable th {
+            background-color: var(--card-header-background);
+            font-weight: bold;
+        }
+
+        #databasePopup #databaseTable tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1040;
+        }
+
+        #overlay.show {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="app-container">
+        <!-- Loading Indicator -->
+        <div id="loading-indicator">
+            <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <p>Loading database...</p>
+        </div>
+
+        <!-- Top Right Action Buttons -->
+        <div class="top-actions">
+            <button class="btn btn-secondary btn-sm" onclick="viewDatabase()" title="View Database"><i class="fas fa-database"></i></button>
+            <button class="btn btn-danger btn-sm" onclick="clearDatabase()" title="Clear Local Database"><i class="fas fa-trash"></i></button>
+        </div>
+
+        <!-- Message Container -->
+        <div id="message-container"></div>
+
+        <!-- Data Retrieval & Calculation Section -->
+        <div class="card mb-3">
+            <div class="card-header">Item Details & Calculation</div>
+            <div class="card-body">
+                <div class="form-row"> <!-- Row for Code and Type -->
+                    <div class="form-group col-md-6"> <!-- Adjust column size as needed -->
+                        <label for="code">Code:</label>
+                        <input type="text" class="form-control adjustable-width code-input" id="code" oninput="getItemDetails()">
+                        <div id="codeError" class="error-message"></div>
+                    </div>
+                    <div class="form-group col-md-6"> <!-- Adjust column size as needed -->
+                        <label for="type">Type:</label>
+                        <select class="form-control adjustable-width type-select" id="type"
+                            onchange="toggleCurrentPriceField()">
+                            <option value="شراء">شراء</option>
+                            <option value="مرتجع">مرتجع</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- Current Price Input (Shown only for "مرتجع") -->
+                <div class="form-group" id="currentPriceDiv" style="display:none; display: flex;"> <!-- Flex to keep label and input inline when visible -->
+                    <label for="currentPrice">Current Price:</label>
+                    <input type="number" class="form-control adjustable-width price-input" id="currentPrice"
+                        oninput="calculateTotal()">
+                    <div id="currentPriceError" class="error-message"></div>
+                </div>
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" class="form-control adjustable-width" id="name" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="supplierName">Supplier Name:</label>
+                    <input type="text" class="form-control adjustable-width" id="supplierName" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="alternateSupplierCheck">شراء من مورد اخر:</label>
+                    <div class="form-check" style="padding-top: 8px; padding-bottom: 8px;">
+                        <input type="checkbox" class="form-check-input" id="alternateSupplierCheck"
+                            onchange="toggleAlternateSupplier()" style="margin-left: 0;">
+                        <label class="form-check-label" for="alternateSupplierCheck" style="margin-left: 20px; margin-bottom: 0;"> </label>
+                    </div>
+                </div>
+                <div class="form-group" id="alternateSupplierDiv" style="display: none;">
+                    <label for="alternateSupplierName">Alternate Supplier Name:</label>
+                    <input type="text" class="form-control adjustable-width" id="alternateSupplierName">
+                </div>
+                <div class="form-row"> <!-- Row for Case Cost and Unit -->
+                    <div class="form-group col-md-6">
+                        <label for="cost">Case Cost:</label>
+                        <input type="number" class="form-control adjustable-width unit-input" id="cost" required
+                            oninput="calculateTotal()">
+                        <div id="costError" class="error-message"></div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="unit">Units per Case:</label>
+                        <input type="number" class="form-control adjustable-width unit-input" id="unit" value="1"
+                            oninput="calculateTotal()">
+                    </div>
+                </div>
+                <div class="form-row"> <!-- Row for Discount and VAT -->
+                    <div class="form-group col-md-6">
+                        <label for="discount">Discount (%):</label>
+                        <input type="number" class="form-control adjustable-width discount-input" id="discount" value="0"
+                            oninput="calculateTotal()">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="vat">VAT (%):</label>
+                        <select class="form-control adjustable-width vat-select" id="vat" onchange="calculateTotal()">
+                            <option value="0" selected>0</option>
+                            <option value="5">5</option>
+                            <option value="14">14</option>
+                        </select>
+                        <div id="vatError" class="error-message"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="unitPrice">Unit Price (After Discount & VAT):</label>
+                    <input type="text" class="form-control adjustable-width" id="unitPrice" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="casePrice">Case Price (After Discount & VAT):</label>
+                    <input type="text" class="form-control adjustable-width" id="casePrice" readonly>
+                </div>
+
+
+                <button class="btn btn-primary" onclick="addToList()"><i class="fas fa-save"></i> Save to Local</button>
+                <button class="btn btn-danger" onclick="clearAll()"><i class="fas fa-broom"></i> Clear All Entries</button>
+
+            </div>
+        </div>
+
+        <!-- Data Management Section -->
+        <div class="card mb-3">
+            <div class="card-header">Entries</div>
+            <div class="card-body table-container">
+                <div class="table-responsive">
+                    <table id="entriesTable" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Name</th>
+                                <th>Supplier</th>
+                                <th>Units</th>
+                                <th>Discount</th>
+                                <th>VAT</th>
+                                <th>Piece</th>
+                                <th>Case</th>
+                                <th>Type</th>
+                                <th>Current</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Export Section -->
+        <button class="btn btn-info" onclick="exportToJPG()"><i class="fas fa-download"></i> Export to JPG</button>
+
+        <!-- Popup for Database View -->
+        <div id="databasePopup">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3>Database</h3>
+                <button onclick="closeDatabasePopup()" class="btn btn-secondary btn-sm"><i
+                        class="fas fa-times"></i> Close</button>
+            </div>
+            <table id="databaseTable">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Name</th>
+                        <th>Supplier Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="overlay"></div>
+
+        <canvas id="hiddenCanvas" style="display:none;"></canvas>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+
+    <script>
+        let database = []; // In-memory database
+        let entries = [];   // In-memory entries array
+        const databaseFileNameLocal = "pricing database.xlsx";
+        const githubDatabaseFileName = "pricing database.xlsx";
+        const googleSheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQNrRFFRPe_jrOrDZM58gRqxfsA0deD60_q2jkA7XJRRfJQ7IiBdIqNDN7JdMawjw/pub?output=csv"; // REPLACE!
+        const LOCAL_STORAGE_ENTRIES_KEY = 'pricingAppEntries'; // Key for local storage
+
+        // --- Local Storage Functions for Entries ---
+        function saveEntriesToLocalStorage() {
+            localStorage.setItem(LOCAL_STORAGE_ENTRIES_KEY, JSON.stringify(entries));
+        }
+
+        function loadEntriesFromLocalStorage() {
+            const storedEntries = localStorage.getItem(LOCAL_STORAGE_ENTRIES_KEY);
+            return storedEntries ? JSON.parse(storedEntries) : [];
+        }
+
+        function clearEntriesFromLocalStorage() {
+            localStorage.removeItem(LOCAL_STORAGE_ENTRIES_KEY);
+        }
+
+        // Function to show loading indicator
+        function showLoadingIndicator() {
+            document.getElementById('loading-indicator').style.display = 'flex';
+        }
+
+        // Function to hide loading indicator
+        function hideLoadingIndicator() {
+            document.getElementById('loading-indicator').style.display = 'none';
+        }
+
+        // Function to display a message with animation
+        function displayMessage(message, isError = false) {
+            const messageContainer = document.getElementById('message-container');
+            messageContainer.textContent = message;
+            messageContainer.className = isError ? 'error show' : 'show'; // Add 'show' class for animation
+            messageContainer.style.display = 'block';
+            setTimeout(() => {
+                messageContainer.classList.remove('show'); // Remove 'show' class to fade out
+                setTimeout(() => {
+                    messageContainer.style.display = 'none'; // Then hide completely after animation
+                }, 400); // Match transition duration (0.4s in CSS)
+            }, 3000);
+        }
+
+        // Function to display error messages
+        function displayError(elementId, message) {
+            const errorElement = document.getElementById(elementId);
+            if (errorElement) {
+                errorElement.textContent = message;
+            }
+        }
+
+        // Function to clear error messages
+        function clearError(elementId) {
+            const errorElement = document.getElementById(elementId);
+            if (errorElement) {
+                errorElement.textContent = '';
+            }
+        }
+
+        // Function to add button click animation
+        function addButtonClickAnimation(button) {
+            button.classList.add('clicked');
+            setTimeout(() => {
+                button.classList.remove('clicked');
+            }, 300);
+        }
+
+        // Auto-load database from Google Sheet and save to Firebase (No changes needed - MODIFIED for indicator)
+        function autoLoadDatabase() {
+            showLoadingIndicator(); // Show loading indicator
+            let databaseURL = googleSheetCsvUrl;
+
+            console.log("Auto-loading from Google Sheet CSV URL:", databaseURL);
+
+            fetch(databaseURL)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.text();
+                })
+                .then(csvData => {
+                    const newDatabase = parseCSV(csvData);
+                    if (newDatabase.length > 0 && (!newDatabase[0].code || !newDatabase[0].name || !newDatabase[0]['supplier name'])) { // Updated column titles
+                        displayError('excelFileError', 'Google Sheet must have columns: code, name, and supplier name.'); // Updated column titles
+                        return;
+                    }
+
+                    database = newDatabase; // Store in in-memory 'database' variable
+
+                })
+                .then(() => {
+                    console.log('autoLoadDatabase: Database AUTO-LOADED from Google Sheet (in-memory)');
+                    displayMessage('Database auto-loaded successfully from Google Sheet (in-memory)!');
+                    // Optionally, refresh the database view after auto-load
+                    // viewDatabase(); // Uncomment if you want to automatically show the database popup
+                })
+                .catch(error => {
+                    console.error('autoLoadDatabase: Error loading or processing database file from Google Sheet:', error);
+                    displayError('excelFileError', `Error auto-loading database from Google Sheet: ${error.message}.`);
+                    displayMessage(`Error auto-loading database from Google Sheet. ${error.message}`, true);
+                })
+                .finally(() => { // ADDED finally block to hide indicator
+                    hideLoadingIndicator(); // Hide loading indicator
+                });
+        }
+
+
+        // Function to parse CSV data (No changes needed)
+        function parseCSV(csvText) {
+            const lines = csvText.trim().split('\n');
+            const headers = lines[0].split(',').map(header => header.trim().toLowerCase().replace(/ /g, ' ')); // Convert headers to lowercase and handle spaces
+            const data = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(',').map(value => value.trim());
+                if (values.length === headers.length) {
+                    const rowData = {};
+                    for (let j = 0; j < headers.length; j++) {
+                        rowData[headers[j]] = values[j];
+                    }
+                    data.push(rowData);
+                }
+            }
+            return data;
+        }
+
+
+        // Load initial data when the page loads
+        window.onload = function () {
+            loadEntriesFromLocalStorageAndUpdateTable(); // Load entries from LocalStorage on page load
+            autoLoadDatabase(); // Still auto-load database on page load (for initial setup/sync)
+        };
+
+        // Function to load entries from LocalStorage and update the table
+        function loadEntriesFromLocalStorageAndUpdateTable() {
+            entries = loadEntriesFromLocalStorage(); // Load from local storage first
+            updateEntriesTable(); // Update the table with local storage entries
+        }
+
+
+        // goHome function (No changes needed)
+        function goHome() {
+            window.location.href = '/';
+        }
+
+
+        // viewDatabase function - modified to fetch from Firebase and use lowercase column titles (No changes needed)
+        function viewDatabase() {
+            const popup = document.getElementById('databasePopup');
+            const overlay = document.getElementById('overlay');
+
+            popup.classList.add('show'); // Add 'show' class to animate in
+            overlay.classList.add('show'); // Add 'show' class to overlay
+            popup.style.display = 'block'; // Ensure block display for animation to work
+            overlay.style.display = 'block'; // Ensure overlay is displayed
+
+            const tableBody = popup.querySelector('#databaseTable tbody');
+            tableBody.innerHTML = '';
+
+            database.forEach(item => {
+                    const row = tableBody.insertRow();
+                    row.insertCell().textContent = item.code || ''; // Updated column title
+                    row.insertCell().textContent = item.name || ''; // Updated column title
+                    row.insertCell().textContent = item['supplier name'] || ''; // Updated column title
+                });
+        }
+
+
+        // closeDatabasePopup function (No changes needed)
+        function closeDatabasePopup() {
+            const popup = document.getElementById('databasePopup');
+            const overlay = document.getElementById('overlay');
+
+            popup.classList.remove('show'); // Remove 'show' class to animate out
+            overlay.classList.remove('show'); // Remove 'show' class from overlay
+
+            setTimeout(() => {
+                popup.style.display = 'none'; // Hide popup after animation
+                overlay.style.display = 'none'; // Hide overlay after animation
+            }, 300); // Match transition duration (0.3s in CSS)
+        }
+
+        // clearDatabase function - modified to clear Firebase database (No changes needed)
+        async function clearDatabase() {
+            database = []; // Clear in-memory database
+            displayMessage('Database cleared from memory (reloads from Google Sheet on refresh).');
+        }
+
+        // getItemDetails function - modified to fetch from Firebase and use lowercase column titles (No changes needed)
+        function getItemDetails() {
+            const code = document.getElementById('code').value.trim();
+            clearError('codeError');
+
+            if (!code) {
+                // If code input is cleared, clear item details as well
+                document.getElementById('name').value = '';
+                document.getElementById('supplierName').value = '';
+                return; // Exit function early if no code
+            }
+
+            const foundItem = database.find(item => item.code === code); // Search in in-memory database
+
+                if (foundItem) {
+                    document.getElementById('name').value = foundItem.name || ''; // Updated column title
+                    document.getElementById('supplierName').value = foundItem['supplier name'] || ''; // Updated column title
+                    displayMessage('Item details found.');
+                } else {
+                    document.getElementById('name').value = '';
+                    document.getElementById('supplierName').value = '';
+                    displayMessage('Item details not found.', true);
+                }
+
+        }
+
+        // toggleAlternateSupplier function (No changes needed)
+        function toggleAlternateSupplier() {
+            const checkBox = document.getElementById('alternateSupplierCheck');
+            const alternateSupplierDiv = document.getElementById('alternateSupplierDiv');
+            alternateSupplierDiv.style.display = checkBox.checked ? 'block' : 'none';
+        }
+
+        // toggleCurrentPriceField function (No changes needed)
+        function toggleCurrentPriceField() {
+            const typeSelect = document.getElementById('type');
+            const currentPriceDiv = document.getElementById('currentPriceDiv');
+            currentPriceDiv.style.display = typeSelect.value === 'مرتجع' ? 'flex' : 'none'; // Change to 'flex'
+        }
+
+        // calculateTotal function (No changes needed)
+        function calculateTotal() {
+            clearError('costError');
+            clearError('vatError');
+            clearError('currentPriceError');
+
+            const cost = parseFloat(document.getElementById('cost').value) || 0;
+            const unit = parseInt(document.getElementById('unit').value) || 1;
+            const discount = parseFloat(document.getElementById('discount').value) || 0;
+            const vatRate = parseFloat(document.getElementById('vat').value) || 0;
+            const type = document.getElementById('type').value;
+            const currentPrice = parseFloat(document.getElementById('currentPrice').value) || 0;
+
+
+            if (isNaN(cost) || cost < 0) {
+                displayError('costError', 'Cost must be a valid positive number.');
+                return;
+            }
+            if (isNaN(vatRate) || vatRate < 0) {
+                displayError('vatError', 'VAT must be a valid positive number.');
+                return;
+            }
+            if (type === 'مرتجع' && (isNaN(currentPrice) || currentPrice < 0)) {
+                displayError('currentPriceError', 'Current Price must be a valid positive number for مرتجع.');
+                return;
+            }
+
+
+            let discountedCost = cost * (1 - discount / 100);
+            let costWithVat = discountedCost * (1 + vatRate / 100);
+            let unitPriceValue = costWithVat / unit;
+
+
+            document.getElementById('unitPrice').value = unitPriceValue.toFixed(2);
+            document.getElementById('casePrice').value = costWithVat.toFixed(2);
+        }
+
+
+        // addToList function - modified to save to Local Storage (No changes needed)
+        function addToList() {
+            const code = document.getElementById('code').value;
+            const name = document.getElementById('name').value;
+            const supplierName = document.getElementById('supplierName').value;
+            const alternateSupplierCheck = document.getElementById('alternateSupplierCheck').checked;
+            const alternateSupplierName = document.getElementById('alternateSupplierName').value;
+            const cost = parseFloat(document.getElementById('cost').value);
+            const unit = parseInt(document.getElementById('unit').value);
+            const discount = parseFloat(document.getElementById('discount').value);
+            const vat = document.getElementById('vat').value;
+            const unitPrice = document.getElementById('unitPrice').value;
+            const casePrice = document.getElementById('casePrice').value;
+            const type = document.getElementById('type').value;
+            const currentPrice = document.getElementById('currentPrice').value;
+
+
+            if (!code || isNaN(cost)) {
+                displayMessage('Please fill in all required fields correctly.', true);
+                return;
+            }
+
+            const entryData = { // Data to save to Local Storage
+                code: code,
+                name: name,
+                supplier: alternateSupplierCheck && alternateSupplierName ? alternateSupplierName : supplierName,
+                units: unit,
+                discount: discount,
+                vat: vat,
+                piece: unitPrice,
+                case: casePrice,
+                type: type,
+                current: type === 'مرتجع' ? currentPrice : ''
+            };
+
+            entries.push(entryData); // Add to in-memory entries array
+            saveEntriesToLocalStorage(); // Save to local storage
+            updateEntriesTable(); // Update the displayed table
+            displayMessage('Item added to local list.');
+            clearInputFields();
+        }
+
+        // clearInputFields function (No changes needed)
+        function clearInputFields() {
+            document.getElementById('code').value = '';
+            document.getElementById('name').value = '';
+            document.getElementById('supplierName').value = '';
+            document.getElementById('alternateSupplierCheck').checked = false;
+            document.getElementById('alternateSupplierName').value = '';
+            document.getElementById('alternateSupplierDiv').style.display = 'none';
+            document.getElementById('cost').value = '';
+            document.getElementById('unit').value = '1';
+            document.getElementById('discount').value = '0';
+            document.getElementById('vat').value = '0';
+            document.getElementById('unitPrice').value = '';
+            document.getElementById('casePrice').value = '';
+            document.getElementById('currentPrice').value = '';
+            document.getElementById('currentPriceDiv').style.display = 'none';
+            document.getElementById('type').value = 'شراء';
+
+            clearError('codeError');
+            clearError('costError');
+            clearError('vatError');
+            clearError('currentPriceError');
+        }
+
+
+        // updateEntriesTable function - modified to fetch and display from in-memory entries array (No changes needed)
+        function updateEntriesTable() {
+            const entriesTableBody = document.querySelector('#entriesTable tbody');
+            entriesTableBody.innerHTML = '';
+
+            entries.forEach((entry, index) => { // Still using in-memory 'entries' array for display
+                const row = entriesTableBody.insertRow();
+                row.insertCell().textContent = entry.code;
+                row.insertCell().textContent = entry.name;
+                row.insertCell().textContent = entry.supplier;
+                row.insertCell().textContent = entry.units;
+                row.insertCell().textContent = entry.discount;
+                row.insertCell().textContent = entry.vat;
+                row.insertCell().textContent = entry.piece;
+                row.insertCell().textContent = entry.case;
+                row.insertCell().textContent = entry.type;
+                row.insertCell().textContent = entry.current;
+
+                const actionsCell = row.insertCell();
+                const deleteButton = document.createElement('button');
+                deleteButton.className = 'btn btn-danger btn-sm';
+                deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
+                deleteButton.onclick = () => deleteLocalEntry(index); // Delete from local storage
+                actionsCell.appendChild(deleteButton);
+            });
+        }
+
+        // deleteLocalEntry function - deletes entry from local storage and updates table (No changes needed)
+        function deleteLocalEntry(index) {
+            entries.splice(index, 1); // Remove from in-memory array
+            saveEntriesToLocalStorage(); // Update local storage
+            updateEntriesTable(); // Refresh the table
+            displayMessage('Entry deleted from local list.');
+        }
+
+
+        // clearAll function - modified to clear entries from Firebase and Local Storage (No changes needed)
+        async function clearAll() {
+            clearEntriesFromLocalStorage(); // Clear local storage entries
+            entries = []; // Clear in-memory entries array
+            updateEntriesTable(); // Clear the table display
+            displayMessage('All entries cleared from Local Storage.');
+        }
+
+
+        // exportToJPG function (No changes needed)
+        function exportToJPG() {
+            console.log("exportToJPG function started");
+
+            const table = document.getElementById('entriesTable');
+            const hiddenCanvas = document.getElementById('hiddenCanvas');
+
+            // Remove text-overflow and word-break styles temporarily for accurate rendering
+            const originalStyles = {};
+            const tds = table.querySelectorAll('td');
+            tds.forEach(td => {
+                originalStyles[td] = {
+                    whiteSpace: td.style.whiteSpace,
+                    wordBreak: td.style.wordBreak,
+                    textOverflow: td.style.textOverflow
+                };
+                td.style.whiteSpace = 'nowrap'; // Force single line
+                td.style.wordBreak = 'normal';   // Prevent word breaks
+                td.style.textOverflow = 'clip'; // Show full text
+            });
+            console.log("Before html2canvas call");
+
+            html2canvas(table, {
+                scale: 2,
+                useCORS: true,
+                logging: true,
+                scrollY: window.scrollY * -1, // try this
+                scrollX: 0,
+                windowWidth: document.body.scrollWidth,
+                windowHeight: document.body.scrollHeight
+            }).then(canvas => {
+                console.log("html2canvas .then block executed");
+                try {
+                    const imgData = canvas.toDataURL('image/jpeg', 0.9);
+                    const link = document.createElement('a');
+                    link.href = imgData;
+                    link.download = 'entries_table.jpg';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    displayMessage('Table exported to JPG!');
+                } catch (exportError) {
+                    console.error('Error during JPG export:', exportError);
+                    displayMessage('Error exporting to JPG. Check the console for details.', true);
+                }
+            }).finally(() => {
+                console.log("html2canvas .finally block executed");
+                // Restore original styles after rendering
+                tds.forEach(td => {
+                    td.style.whiteSpace = originalStyles[td].whiteSpace;
+                    td.style.wordBreak = originalStyles[td].wordBreak;
+                    td.style.textOverflow = originalStyles[td].textOverflow;
+                });
+            }).catch(error => {
+                console.log("html2canvas .catch block executed", error);
+                console.error('Error exporting to JPG:', error);
+                displayMessage('Error exporting to JPG. Check the console for details.', true);
+            });
+            console.log("exportToJPG function finished (after html2canvas call)");
+        }
+    </script>
+</body>
+
+</html>
