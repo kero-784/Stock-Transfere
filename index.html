@@ -608,20 +608,15 @@
                     return response.text();
                 })
                 .then(csvData => {
+                    console.log("CSV Text downloaded from Google Sheet:", csvData); // *** ADDED LOG ***
                     const newDatabase = parseCSV(csvData);
-                    if (newDatabase.length > 0 && (!newDatabase[0].code || !newDatabase[0].name || !newDatabase[0]['supplier name'])) { // Updated column titles
-                        displayError('excelFileError', 'Google Sheet must have columns: code, name, and supplier name.'); // Updated column titles
-                        return;
-                    }
-
                     database = newDatabase; // Store in in-memory 'database' variable
-
                 })
                 .then(() => {
                     console.log('autoLoadDatabase: Database AUTO-LOADED from Google Sheet (in-memory)');
                     displayMessage('Database auto-loaded successfully from Google Sheet (in-memory)!');
                     // Optionally, refresh the database view after auto-load
-                    // viewDatabase(); // Uncomment if you want to automatically show the database popup
+                    viewDatabase(); // Uncomment if you want to automatically show the database popup
                 })
                 .catch(error => {
                     console.error('autoLoadDatabase: Error loading or processing database file from Google Sheet:', error);
@@ -638,6 +633,7 @@
         function parseCSV(csvText) {
             const lines = csvText.trim().split('\n');
             const headers = lines[0].split(',').map(header => header.trim().toLowerCase().replace(/ /g, ' ')); // Convert headers to lowercase and handle spaces
+            console.log("CSV Headers:", headers); // *** ADDED LOG ***
             const data = [];
 
             for (let i = 1; i < lines.length; i++) {
@@ -650,6 +646,7 @@
                     data.push(rowData);
                 }
             }
+            console.log("Parsed Database Data:", data); // *** ADDED LOG ***
             return data;
         }
 
