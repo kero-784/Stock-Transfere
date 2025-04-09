@@ -347,6 +347,9 @@
             display: block;
         }
     </style>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
 </head>
 
 <body>
@@ -524,6 +527,23 @@
 
 
     <script>
+        // Firebase Configuration (REPLACE WITH YOUR ACTUAL CONFIG)
+       const firebaseConfig = {
+        onst firebaseConfig = {
+  apiKey: "AIzaSyAqB5syqP1BVfA9dUx3A6zvokDw3oacy_E",
+  authDomain: "data-base-2c8bf.firebaseapp.com",
+  projectId: "data-base-2c8bf",
+  storageBucket: "data-base-2c8bf.firebasestorage.app",
+  messagingSenderId: "958395018379",
+  appId: "1:958395018379:web:eb7588afda28e32e5a788e",
+  measurementId: "G-PMJ02H7PK2"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore(); // Firestore database reference
+
+
         let database = []; // In-memory database
         let entries = [];   // In-memory entries array
         const databaseFileNameLocal = "pricing database.xlsx";
@@ -788,8 +808,8 @@
         }
 
 
-        // addToList function - adds an entry to the local entries list and localStorage
-        function addToList() {
+        // addToList function - modified to save to Local Storage AND Firebase
+        async function addToList() {
             const code = document.getElementById('code').value;
             const name = document.getElementById('name').value;
             const supplierName = document.getElementById('supplierName').value;
@@ -810,7 +830,7 @@
                 return;
             }
 
-            const entryData = {
+            const entryData = { // Data to save to Firebase and Local Storage
                 code: code,
                 name: name,
                 supplier: alternateSupplierCheck && alternateSupplierName ? alternateSupplierName : supplierName,
@@ -823,11 +843,20 @@
                 current: type === 'مرتجع' ? currentPrice : ''
             };
 
-            entries.push(entryData); // Add to in-memory entries array
-            saveEntriesToLocalStorage(); // Save to localStorage
-            updateEntriesTable(); // Update the displayed table
-            displayMessage('Item added to local list.');
-            clearInputFields();
+            try {
+                showLoadingIndicator(); // Show loading indicator
+                await db.collection('pricingEntries').doc(code).set(entryData); // Save to Firestore
+                entries.push(entryData); // Add to in-memory entries array
+                saveEntriesToLocalStorage(); // Save to local storage (optional, for offline access or faster initial load - we can discuss this later)
+                updateEntriesTable(); // Update the displayed table
+                displayMessage('Item added to database successfully!');
+                clearInputFields();
+            } catch (error) {
+                console.error('Error adding entry to Firebase:', error);
+                displayMessage('Error adding item to database.', true);
+            } finally {
+                hideLoadingIndicator(); // Hide loading indicator
+            }
         }
 
         // clearInputFields function - clears input fields in the item details form
@@ -891,16 +920,36 @@
         }
 
 
-        // clearAll function - clears all entries from localStorage and in-memory entries array
+        // clearAll function - modified to clear entries from Firebase and Local Storage
         async function clearAll() {
-            clearEntriesFromLocalStorage(); // Clear localStorage entries
-            entries = []; // Clear in-memory entries array
-            updateEntriesTable(); // Clear the table display
-            displayMessage('All entries cleared from Local Storage.');
+            try {
+                showLoadingIndicator(); // Show loading indicator
+                await clearFirebaseCollection('pricingEntries'); // Clear Firebase entries collection
+                clearEntriesFromLocalStorage(); // Clear local storage entries
+                entries = []; // Clear in-memory entries array
+                updateEntriesTable(); // Clear the table display
+                displayMessage('All entries cleared from Firebase and Local Storage.');
+            } catch (error) {
+                console.error('Error clearing all entries from Firebase:', error);
+                displayMessage('Error clearing all entries from Firebase.', true);
+            } finally {
+                hideLoadingIndicator(); // Hide loading indicator
+            }
+        }
+
+        // NEW clearFirebaseCollection function - to clear a Firebase collection
+        async function clearFirebaseCollection(collectionName) {
+            const collectionRef = db.collection(collectionName);
+            const querySnapshot = await collectionRef.get();
+            const batch = db.batch();
+            querySnapshot.forEach(doc => {
+                batch.delete(doc.ref);
+            });
+            return batch.commit();
         }
 
 
-        // exportToJPG function - exports the entries table as a JPG image
+        // exportToJPG function (No changes needed)
         function exportToJPG() {
             console.log("exportToJPG function started");
 
