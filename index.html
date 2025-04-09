@@ -528,7 +528,7 @@
         let entries = [];   // In-memory entries array
         const databaseFileNameLocal = "pricing database.xlsx";
         const githubDatabaseFileName = "pricing database.xlsx";
-        const googleSheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQNrRFFRPe_jrOrDZM58gRqxfsA0deD60_q2jkA7XJRRfJQ7IiBdIqNDN7JdMawjw/pub?output=csv"; // REPLACE!
+        const googleSheetCsvUrl = "YOUR_GOOGLE_SHEET_CSV_URL_HERE"; // *** IMPORTANT: REPLACE WITH YOUR GOOGLE SHEET CSV URL ***
         const LOCAL_STORAGE_ENTRIES_KEY = 'pricingAppEntries'; // Key for local storage
 
         // --- Local Storage Functions for Entries ---
@@ -593,7 +593,7 @@
             }, 300);
         }
 
-        // Auto-load database from Google Sheet and save to Firebase (No changes needed - MODIFIED for indicator)
+        // Auto-load database from Google Sheet
         function autoLoadDatabase() {
             showLoadingIndicator(); // Show loading indicator
             let databaseURL = googleSheetCsvUrl;
@@ -608,32 +608,31 @@
                     return response.text();
                 })
                 .then(csvData => {
-                    console.log("CSV Text downloaded from Google Sheet:", csvData); // *** ADDED LOG ***
+                    console.log("CSV Text downloaded from Google Sheet:", csvData); // Log raw CSV data
                     const newDatabase = parseCSV(csvData);
                     database = newDatabase; // Store in in-memory 'database' variable
                 })
                 .then(() => {
                     console.log('autoLoadDatabase: Database AUTO-LOADED from Google Sheet (in-memory)');
                     displayMessage('Database auto-loaded successfully from Google Sheet (in-memory)!');
-                    // Optionally, refresh the database view after auto-load
-                    viewDatabase(); // Uncomment if you want to automatically show the database popup
+                    // viewDatabase(); // COMMENTED OUT: Do NOT automatically open database popup on load
                 })
                 .catch(error => {
                     console.error('autoLoadDatabase: Error loading or processing database file from Google Sheet:', error);
                     displayError('excelFileError', `Error auto-loading database from Google Sheet: ${error.message}.`);
                     displayMessage(`Error auto-loading database from Google Sheet. ${error.message}`, true);
                 })
-                .finally(() => { // ADDED finally block to hide indicator
+                .finally(() => {
                     hideLoadingIndicator(); // Hide loading indicator
                 });
         }
 
 
-        // Function to parse CSV data (No changes needed)
+        // Function to parse CSV data
         function parseCSV(csvText) {
             const lines = csvText.trim().split('\n');
             const headers = lines[0].split(',').map(header => header.trim().toLowerCase().replace(/ /g, ' ')); // Convert headers to lowercase and handle spaces
-            console.log("CSV Headers:", headers); // *** ADDED LOG ***
+            console.log("CSV Headers:", headers); // Log parsed headers
             const data = [];
 
             for (let i = 1; i < lines.length; i++) {
@@ -646,7 +645,7 @@
                     data.push(rowData);
                 }
             }
-            console.log("Parsed Database Data:", data); // *** ADDED LOG ***
+            console.log("Parsed Database Data:", data); // Log parsed data
             return data;
         }
 
@@ -654,13 +653,13 @@
         // Load initial data when the page loads
         window.onload = function () {
             loadEntriesFromLocalStorageAndUpdateTable(); // Load entries from LocalStorage on page load
-            autoLoadDatabase(); // Still auto-load database on page load (for initial setup/sync)
+            autoLoadDatabase(); // Load database from Google Sheet on page load
         };
 
         // Function to load entries from LocalStorage and update the table
         function loadEntriesFromLocalStorageAndUpdateTable() {
-            entries = loadEntriesFromLocalStorage(); // Load from local storage first
-            updateEntriesTable(); // Update the table with local storage entries
+            entries = loadEntriesFromLocalStorage(); // Load entries from local storage
+            updateEntriesTable(); // Update the entries table
         }
 
 
@@ -670,7 +669,7 @@
         }
 
 
-        // viewDatabase function - modified to fetch from Firebase and use lowercase column titles (No changes needed)
+        // viewDatabase function - opens the database popup
         function viewDatabase() {
             const popup = document.getElementById('databasePopup');
             const overlay = document.getElementById('overlay');
@@ -684,15 +683,15 @@
             tableBody.innerHTML = '';
 
             database.forEach(item => {
-                    const row = tableBody.insertRow();
-                    row.insertCell().textContent = item.code || ''; // Updated column title
-                    row.insertCell().textContent = item.name || ''; // Updated column title
-                    row.insertCell().textContent = item['supplier name'] || ''; // Updated column title
-                });
+                const row = tableBody.insertRow();
+                row.insertCell().textContent = item.code || ''; // Use lowercase header
+                row.insertCell().textContent = item.name || ''; // Use lowercase header
+                row.insertCell().textContent = item['supplier name'] || ''; // Use lowercase header
+            });
         }
 
 
-        // closeDatabasePopup function (No changes needed)
+        // closeDatabasePopup function - closes the database popup
         function closeDatabasePopup() {
             const popup = document.getElementById('databasePopup');
             const overlay = document.getElementById('overlay');
@@ -706,19 +705,19 @@
             }, 300); // Match transition duration (0.3s in CSS)
         }
 
-        // clearDatabase function - modified to clear Firebase database (No changes needed)
+        // clearDatabase function - clears the in-memory database (reloads from Google Sheet on refresh)
         async function clearDatabase() {
             database = []; // Clear in-memory database
             displayMessage('Database cleared from memory (reloads from Google Sheet on refresh).');
         }
 
-        // getItemDetails function - modified to fetch from Firebase and use lowercase column titles (No changes needed)
+        // getItemDetails function - retrieves item details from the in-memory database
         function getItemDetails() {
             const code = document.getElementById('code').value.trim();
             clearError('codeError');
 
             if (!code) {
-                // If code input is cleared, clear item details as well
+                // If code input is cleared, clear item details
                 document.getElementById('name').value = '';
                 document.getElementById('supplierName').value = '';
                 return; // Exit function early if no code
@@ -726,16 +725,15 @@
 
             const foundItem = database.find(item => item.code === code); // Search in in-memory database
 
-                if (foundItem) {
-                    document.getElementById('name').value = foundItem.name || ''; // Updated column title
-                    document.getElementById('supplierName').value = foundItem['supplier name'] || ''; // Updated column title
-                    displayMessage('Item details found.');
-                } else {
-                    document.getElementById('name').value = '';
-                    document.getElementById('supplierName').value = '';
-                    displayMessage('Item details not found.', true);
-                }
-
+            if (foundItem) {
+                document.getElementById('name').value = foundItem.name || ''; // Use lowercase header
+                document.getElementById('supplierName').value = foundItem['supplier name'] || ''; // Use lowercase header
+                displayMessage('Item details found.');
+            } else {
+                document.getElementById('name').value = '';
+                document.getElementById('supplierName').value = '';
+                displayMessage('Item details not found.', true);
+            }
         }
 
         // toggleAlternateSupplier function (No changes needed)
@@ -749,7 +747,7 @@
         function toggleCurrentPriceField() {
             const typeSelect = document.getElementById('type');
             const currentPriceDiv = document.getElementById('currentPriceDiv');
-            currentPriceDiv.style.display = typeSelect.value === 'مرتجع' ? 'flex' : 'none'; // Change to 'flex'
+            currentPriceDiv.style.display = typeSelect.value === 'مرتجع' ? 'flex' : 'none';
         }
 
         // calculateTotal function (No changes needed)
@@ -775,7 +773,7 @@
                 return;
             }
             if (type === 'مرتجع' && (isNaN(currentPrice) || currentPrice < 0)) {
-                displayError('currentPriceError', 'Current Price must be a valid positive number for مرتجع.');
+                displayError('currentPriceError', 'Current Price must be valid.');
                 return;
             }
 
@@ -790,7 +788,7 @@
         }
 
 
-        // addToList function - modified to save to Local Storage (No changes needed)
+        // addToList function - adds an entry to the local entries list and localStorage
         function addToList() {
             const code = document.getElementById('code').value;
             const name = document.getElementById('name').value;
@@ -812,7 +810,7 @@
                 return;
             }
 
-            const entryData = { // Data to save to Local Storage
+            const entryData = {
                 code: code,
                 name: name,
                 supplier: alternateSupplierCheck && alternateSupplierName ? alternateSupplierName : supplierName,
@@ -826,13 +824,13 @@
             };
 
             entries.push(entryData); // Add to in-memory entries array
-            saveEntriesToLocalStorage(); // Save to local storage
+            saveEntriesToLocalStorage(); // Save to localStorage
             updateEntriesTable(); // Update the displayed table
             displayMessage('Item added to local list.');
             clearInputFields();
         }
 
-        // clearInputFields function (No changes needed)
+        // clearInputFields function - clears input fields in the item details form
         function clearInputFields() {
             document.getElementById('code').value = '';
             document.getElementById('name').value = '';
@@ -857,12 +855,12 @@
         }
 
 
-        // updateEntriesTable function - modified to fetch and display from in-memory entries array (No changes needed)
+        // updateEntriesTable function - updates the displayed entries table from the in-memory entries array
         function updateEntriesTable() {
             const entriesTableBody = document.querySelector('#entriesTable tbody');
             entriesTableBody.innerHTML = '';
 
-            entries.forEach((entry, index) => { // Still using in-memory 'entries' array for display
+            entries.forEach((entry, index) => {
                 const row = entriesTableBody.insertRow();
                 row.insertCell().textContent = entry.code;
                 row.insertCell().textContent = entry.name;
@@ -879,30 +877,30 @@
                 const deleteButton = document.createElement('button');
                 deleteButton.className = 'btn btn-danger btn-sm';
                 deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
-                deleteButton.onclick = () => deleteLocalEntry(index); // Delete from local storage
+                deleteButton.onclick = () => deleteLocalEntry(index); // Delete entry from localStorage
                 actionsCell.appendChild(deleteButton);
             });
         }
 
-        // deleteLocalEntry function - deletes entry from local storage and updates table (No changes needed)
+        // deleteLocalEntry function - deletes an entry from the local entries list and localStorage
         function deleteLocalEntry(index) {
             entries.splice(index, 1); // Remove from in-memory array
-            saveEntriesToLocalStorage(); // Update local storage
+            saveEntriesToLocalStorage(); // Update localStorage
             updateEntriesTable(); // Refresh the table
             displayMessage('Entry deleted from local list.');
         }
 
 
-        // clearAll function - modified to clear entries from Firebase and Local Storage (No changes needed)
+        // clearAll function - clears all entries from localStorage and in-memory entries array
         async function clearAll() {
-            clearEntriesFromLocalStorage(); // Clear local storage entries
+            clearEntriesFromLocalStorage(); // Clear localStorage entries
             entries = []; // Clear in-memory entries array
             updateEntriesTable(); // Clear the table display
             displayMessage('All entries cleared from Local Storage.');
         }
 
 
-        // exportToJPG function (No changes needed)
+        // exportToJPG function - exports the entries table as a JPG image
         function exportToJPG() {
             console.log("exportToJPG function started");
 
