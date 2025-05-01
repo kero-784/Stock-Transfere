@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Updated Version -->
-    <title>Kero Assistance - Stock Transfer (v1.9 - New GAS URL)</title>
+    <title>Kero Assistance - Stock Transfer (v1.10 - URL Update 2)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -44,7 +44,7 @@
 
 <body>
     <!-- Updated Version -->
-    <div class="version">v 1.9 - New GAS URL</div>
+    <div class="version">v 1.10 - URL Update 2</div>
 
     <div id="appContent" class="container">
         <h1>
@@ -58,7 +58,7 @@
              <h2>Processing Setup</h2>
              <div class="config-container">
                  <p>Database access is pre-configured via Google Apps Script.</p>
-                 <p style="font-size: 0.8em">(Ensure GAS deployment allows access by 'Anyone').</p>
+                 <p style="font-size: 0.8em">(Ensure corresponding GAS deployment has correct code & allows access by 'Anyone').</p>
              </div>
         </div>
 
@@ -84,10 +84,10 @@
     </div>
 
     <script>
-        console.log("Kero Assistance App v1.9 Initializing..."); // Updated version
+        console.log("Kero Assistance App v1.10 Initializing..."); // Updated version
 
         // --- *** GAS URL Updated Here *** ---
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbx5Kuz8L_otTlkSg1Y6uRuMP6vaZ2AuF-mz5PYfbR7SB6PJH7_BAAqZ9yNsI664SwAHFg/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbzWzrGrblfZ_z29QKCCAPiRtjGlHAVjrGf6yAg5AEmiNl374BEhOYI01wwdwmBBTN-P/exec";
 
         // Global state for quantity file processing
         let quantityInfo = {
@@ -116,6 +116,7 @@
              const canProcess = isUrlSet && isQuantityReady;
              processButton.disabled = !canProcess;
         }
+
 
         // --- Event Handlers (Keep existing functions from v1.8) ---
         function handleQuantityUpload(event) {
