@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Updated Version -->
-    <title>Kero Assistance - Stock Transfer (v1.8 - CORS Fix Applied)</title>
+    <title>Kero Assistance - Stock Transfer (v1.9 - New GAS URL)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -44,7 +44,7 @@
 
 <body>
     <!-- Updated Version -->
-    <div class="version">v 1.8 - CORS Fix Applied</div>
+    <div class="version">v 1.9 - New GAS URL</div>
 
     <div id="appContent" class="container">
         <h1>
@@ -58,7 +58,7 @@
              <h2>Processing Setup</h2>
              <div class="config-container">
                  <p>Database access is pre-configured via Google Apps Script.</p>
-                 <p style="font-size: 0.8em">(Ensure GAS deployment allows access by 'Anyone').</p> <!-- Added reminder -->
+                 <p style="font-size: 0.8em">(Ensure GAS deployment allows access by 'Anyone').</p>
              </div>
         </div>
 
@@ -84,17 +84,19 @@
     </div>
 
     <script>
-        console.log("Kero Assistance App v1.8 Initializing...");
+        console.log("Kero Assistance App v1.9 Initializing..."); // Updated version
 
-        // --- GAS URL Constant (ensure this is correct) ---
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbzf4-ZUrLdgAi2AXf1Hbor1fs3dxWrDegJoKbxLsmSv_2p3LONR85cJtFHvmrYxGnjh2Q/exec";
+        // --- *** GAS URL Updated Here *** ---
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbx5Kuz8L_otTlkSg1Y6uRuMP6vaZ2AuF-mz5PYfbR7SB6PJH7_BAAqZ9yNsI664SwAHFg/exec";
 
-        let quantityInfo = { data: null, codeIndex: -1, quantityIndex: -1 };
+        // Global state for quantity file processing
+        let quantityInfo = {
+            data: null,        // Holds the array of arrays from the sheet
+            codeIndex: -1,     // Holds the 0-based index of the 'code' column
+            quantityIndex: -1  // Holds the 0-based index of the 'quantity' column
+        };
 
-        // --- Helper Functions (No changes needed) ---
-        function showMessage(message, type = 'error') { /* ... */ }
-        function enableProcessButton() { /* ... */ }
-        // (Keep existing helper functions from v1.7.1)
+        // --- Helper Functions (Keep existing functions from v1.8) ---
         function showMessage(message, type = 'error') {
             const messageDiv = document.getElementById('message');
             messageDiv.innerText = message;
@@ -108,19 +110,14 @@
 
         function enableProcessButton() {
              const processButton = document.getElementById('processDownloadButton');
-             const isUrlSet = (GAS_URL && GAS_URL !== "PASTE_YOUR_DEPLOYED_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE"); // Optional stricter check
+             // Check if the URL is valid (basic check: not empty) AND quantity data is loaded
+             const isUrlSet = (GAS_URL && GAS_URL.startsWith("https://script.google.com/macros/"));
              const isQuantityReady = (quantityInfo.data && quantityInfo.codeIndex !== -1 && quantityInfo.quantityIndex !== -1);
              const canProcess = isUrlSet && isQuantityReady;
              processButton.disabled = !canProcess;
         }
 
-
-        // --- Event Handlers (No changes needed) ---
-        function handleQuantityUpload(event) { /* ... */ }
-        function clearQuantityInternal() { /* ... */ }
-        function clearQuantity() { /* ... */ }
-        async function processDataAndDownload() { /* ... */ }
-        // (Keep existing event handlers from v1.7.1)
+        // --- Event Handlers (Keep existing functions from v1.8) ---
         function handleQuantityUpload(event) {
             console.log("handleQuantityUpload triggered.");
             const file = event.target.files[0];
@@ -206,13 +203,13 @@
             reader.readAsArrayBuffer(file);
         }
 
-         function clearQuantityInternal() {
+        function clearQuantityInternal() {
             document.getElementById('quantityFile').value = ''; // Clear file input selection
             quantityInfo = { data: null, codeIndex: -1, quantityIndex: -1 };
             document.getElementById('uploadQuantityButton').textContent = 'Choose Quantity File';
             enableProcessButton();
             console.log("Quantity data cleared internally.");
-         }
+        }
 
         function clearQuantity() {
             clearQuantityInternal();
@@ -228,25 +225,24 @@
             // --- Get User Inputs ---
             const locationFromValue = document.getElementById('locationFrom').value;
             const locationToValue = document.getElementById('locationTo').value;
-            const gasUrl = GAS_URL; // Use the hardcoded constant
+            const gasUrl = GAS_URL; // Use the constant
 
             // --- 1. Input Validations ---
             console.log("Step 1: Validating inputs...");
             if (!locationFromValue || !locationToValue) {
-                showMessage('Please select both "Location From" and "Location To".'); processButton.disabled = false; return; // Re-enable button on simple validation fail
+                showMessage('Please select both "Location From" and "Location To".'); processButton.disabled = false; return;
             }
             console.log(`Locations selected: From - ${locationFromValue}, To - ${locationToValue}`);
 
-            if (!gasUrl || gasUrl === "PASTE_YOUR_DEPLOYED_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE") {
+             if (!gasUrl || !gasUrl.startsWith("https://script.google.com/macros/")) { // Basic check
                  showMessage('CRITICAL ERROR: Google Apps Script URL is not configured correctly!', 'error');
-                 console.error("GAS_URL constant is invalid or placeholder!");
-                 // Button remains disabled here as it's a config error
-                 return;
+                 console.error("GAS_URL constant is invalid!");
+                 return; // Keep button disabled
              }
              console.log("GAS URL constant appears valid.");
 
             if (!quantityInfo.data || quantityInfo.codeIndex === -1 || quantityInfo.quantityIndex === -1) {
-                showMessage('Please upload a valid quantity data file.'); processButton.disabled = false; return; // Re-enable on simple validation fail
+                showMessage('Please upload a valid quantity data file.'); processButton.disabled = false; return;
             }
             console.log("Quantity data appears valid.");
             console.log("Input validation successful.");
@@ -413,12 +409,12 @@
             console.log("Event listeners attached.");
 
             // Final check for GAS URL configuration on load
-            if (!GAS_URL || GAS_URL === "PASTE_YOUR_DEPLOYED_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE") {
-                console.error("Configuration Error: GAS_URL constant is not set or is still the placeholder!");
-                showMessage("Configuration Error: App requires setup (GAS URL missing/invalid).", "error");
-            } else {
+             if (!GAS_URL || !GAS_URL.startsWith("https://script.google.com/macros/")) {
+                 console.error("Configuration Error: GAS_URL constant is invalid!");
+                 showMessage("Configuration Error: App requires setup (GAS URL invalid).", "error");
+             } else {
                  console.log("GAS_URL constant is set:", GAS_URL.substring(0,50)+"..."); // Log start of URL
-            }
+             }
             enableProcessButton(); // Initial check for button state
         });
 
