@@ -4,13 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kero Assistance - Stock Transfer Management v2</title>
+    <title>Kero Assistance - Stock Transfer Management v2.1</title> <!-- Updated version -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <!-- Using Select2 is optional now if locations are fixed, but kept for potential future use -->
-    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" /> -->
-    <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script> -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"> <!-- Material Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 
 
     <style>
@@ -18,7 +17,7 @@
         body, html {
             margin: 0;
             padding: 0;
-            font-family: 'Roboto', 'Arial', sans-serif; /* More modern font */
+            font-family: 'Roboto', 'Arial', sans-serif; /* Modern font */
             background-color: #f4f6f8; /* Lighter background */
             color: #333;
             line-height: 1.6;
@@ -80,9 +79,16 @@
             box-shadow: 0 0 0 1px #3f51b5;
         }
         input[type="file"] {
-            border: none; /* Cleaner look for file input */
-            padding: 10px 0;
+            border: 1px dashed #ccc; /* Dashed border for dropzone feel */
+            background-color: #fafafa;
+            padding: 15px;
+            cursor: pointer;
         }
+         input[type="file"]::-webkit-file-upload-button { /* Style the button */
+             display: none; /* Hide default button if desired */
+         }
+         /* Consider adding text like 'Click or drag file here' via pseudo-elements */
+
 
         .location-container {
             display: flex;
@@ -103,6 +109,7 @@
             color: white;
             background-color: #3F51B5; /* Material primary */
             font-size: 0.9rem;
+            font-weight: 500; /* Medium weight */
             text-transform: uppercase;
             box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px 0 rgba(0,0,0,0.2);
             transition: box-shadow 0.3s ease, background-color 0.3s ease;
@@ -160,29 +167,47 @@
             border-radius: 4px;
             font-weight: 500;
             text-align: left;
+            display: none; /* Hide by default */
+             border: 1px solid transparent;
+        }
+        #message.visible {
+            display: block; /* Show when needed */
         }
         #message.success {
             background-color: #e8f5e9; /* Light green */
             color: #2e7d32; /* Dark green */
-            border: 1px solid #a5d6a7;
+            border-color: #a5d6a7;
         }
         #message.error {
             background-color: #ffebee; /* Light red */
             color: #c62828; /* Dark red */
-            border: 1px solid #ef9a9a;
+            border-color: #ef9a9a;
         }
         #message.info {
             background-color: #e3f2fd; /* Light blue */
             color: #1565c0; /* Dark blue */
-            border: 1px solid #90caf9;
+            border-color: #90caf9;
         }
 
         #dbStatus {
              font-size: 0.9em;
              color: #666;
              margin-top: 10px;
+             padding: 8px;
+             border-radius: 4px;
+             background-color: #f5f5f5;
              text-align: left;
         }
+         #dbStatus.loaded {
+             color: #2e7d32;
+             background-color: #e8f5e9;
+             border: 1px solid #a5d6a7;
+         }
+         #dbStatus.not-loaded {
+              color: #c62828;
+              background-color: #ffebee;
+              border: 1px solid #ef9a9a;
+          }
 
         /* --- Table Styles (for Log) --- */
         table {
@@ -229,17 +254,35 @@
             right: 10px;
             font-size: 0.8em;
             color: #aaa;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 2px 5px;
+            border-radius: 3px;
         }
         .material-icons {
             vertical-align: middle;
             font-size: 1.1em; /* Adjust icon size */
         }
+        hr {
+             border: none;
+             border-top: 1px solid #eee;
+             margin: 20px 0;
+        }
+        label {
+             display: block;
+             text-align: left;
+             margin-bottom: 5px;
+             font-size: 0.9em;
+             color: #555;
+             font-weight: 500;
+        }
+
 
         /* --- Responsive --- */
         @media (max-width: 768px) {
             .container {
                 width: 95%;
                 padding: 20px;
+                margin: 15px auto;
             }
             .location-container {
                 flex-direction: column;
@@ -261,13 +304,15 @@
              #kero-assistance { font-size: 1.5em; }
              #stock-transfer { font-size: 1.1em; }
              th, td { font-size: 0.75rem; padding: 6px 8px;}
-        }
+             .location-container { gap: 5px; }
+              input[type="file"] { padding: 10px; }
+         }
 
     </style>
 </head>
 
 <body>
-    <div class="version">v 2.0 - LocalStorage/GSheet</div>
+    <div class="version">v 2.1</div>
 
     <div id="appContent" class="container">
         <h1>
@@ -278,62 +323,68 @@
 
         <div class="section">
             <h2>Database Management</h2>
+            <label for="googleSheetUrl">Google Sheet CSV URL (Published):</label>
             <!-- Provide the *published* CSV link for your Google Sheet -->
-            <input type="text" id="googleSheetUrl" placeholder="Enter Google Sheet CSV URL (Optional - Overrides Default)" value="https://docs.google.com/spreadsheets/d/e/YOUR_PUBLISHED_SHEET_ID/pub?output=csv">
+            <input type="text" id="googleSheetUrl" placeholder="Enter Google Sheet CSV URL (Published)">
              <button id="fetchDbButton"><span class="material-icons">cloud_download</span>Fetch DB from Sheet</button>
-            <hr style="margin: 15px 0; border: none; border-top: 1px solid #eee;">
-            <label for="databaseFile" style="display:block; text-align: left; margin-bottom: 5px; font-size: 0.9em; color: #555;">Or Upload Database File (Alternative):</label>
-            <input type="file" id="databaseFile" accept=".xlsx">
+            <hr>
+            <label for="databaseFile">Or Upload Database File (Alternative):</label>
+            <input type="file" id="databaseFile" accept=".xlsx,.csv"> <!-- Allow CSV upload too -->
             <!-- Upload button removed, file input change triggers upload directly -->
-            <button id="clearDatabaseButton" class="secondary-button danger-button"><span class="material-icons">delete_sweep</span>Clear Stored DB</button>
-            <div id="dbStatus">Database Status: Not Loaded</div>
+            <button id="clearDatabaseButton" class="secondary-button danger-button"><span class="material-icons">memory</span>Clear DB (Memory Only)</button>
+            <div id="dbStatus" class="not-loaded">Database Status: Not Loaded</div>
         </div>
 
         <div class="section">
             <h2>Initiate New Transfer</h2>
 
             <div class="location-container">
-              <select id="locationFrom" class="location-select">
-                  <option value="">Select Location From</option>
-                  <option value="جاردنز 101">جاردنز 101</option>
-                  <option value="تلال السخنة 102">تلال السخنة 102</option>
-                  <option value="ستيلا 103">ستيلا 103</option>
-                  <option value="الدبلو 104">الدبلو 104</option>
-                  <option value="تلال الساحل 105">تلال الساحل 105</option>
-                  <option value="سوان لك 106">سوان لك 106</option>
-                  <option value="كاسكادا 107">كاسكادا 107</option>
-                  <option value="لافيستا باي 108">لافيستا باي 108</option>
-                  <option value="راس الحكمة 109">راس الحكمة 109</option>
-                  <option value="لازوردي 110">لازوردي 110</option>
-                  <option value="النادي 111">النادي 111</option>
-                  <option value="زايد 112">زايد 112</option>
-                  <option value="القطامية 115">القطامية 115</option>
-                  <option value="مخزن بلبيس 201">مخزن بلبيس 201</option>
-                  <option value="مخزن الساحل 202">مخزن الساحل 202</option>
-              </select>
-
-              <select id="locationTo" class="location-select">
-                  <option value="">Select Location To</option>
-                    <option value="جاردنز 101">جاردنز 101</option>
-                    <option value="تلال السخنة 102">تلال السخنة 102</option>
-                    <option value="ستيلا 103">ستيلا 103</option>
-                    <option value="الدبلو 104">الدبلو 104</option>
-                    <option value="تلال الساحل 105">تلال الساحل 105</option>
-                    <option value="سوان لك 106">سوان لك 106</option>
-                    <option value="كاسكادا 107">كاسكادا 107</option>
-                    <option value="لافيستا باي 108">لافيستا باي 108</option>
-                    <option value="راس الحكمة 109">راس الحكمة 109</option>
-                    <option value="لازوردي 110">لازوردي 110</option>
-                    <option value="النادي 111">النادي 111</option>
-                    <option value="زايد 112">زايد 112</option>
-                    <option value="القطامية 115">القطامية 115</option>
-                    <option value="مخزن بلبيس 201">مخزن بلبيس 201</option>
-                    <option value="مخزن الساحل 202">مخزن الساحل 202</option>
-              </select>
+              <div>
+                  <label for="locationFrom">From Location:</label>
+                  <select id="locationFrom" class="location-select">
+                      <option value="">Select...</option>
+                      <option value="جاردنز 101">جاردنز 101</option>
+                      <option value="تلال السخنة 102">تلال السخنة 102</option>
+                      <option value="ستيلا 103">ستيلا 103</option>
+                      <option value="الدبلو 104">الدبلو 104</option>
+                      <option value="تلال الساحل 105">تلال الساحل 105</option>
+                      <option value="سوان لك 106">سوان لك 106</option>
+                      <option value="كاسكادا 107">كاسكادا 107</option>
+                      <option value="لافيستا باي 108">لافيستا باي 108</option>
+                      <option value="راس الحكمة 109">راس الحكمة 109</option>
+                      <option value="لازوردي 110">لازوردي 110</option>
+                      <option value="النادي 111">النادي 111</option>
+                      <option value="زايد 112">زايد 112</option>
+                      <option value="القطامية 115">القطامية 115</option>
+                      <option value="مخزن بلبيس 201">مخزن بلبيس 201</option>
+                      <option value="مخزن الساحل 202">مخزن الساحل 202</option>
+                  </select>
+              </div>
+              <div>
+                  <label for="locationTo">To Location:</label>
+                  <select id="locationTo" class="location-select">
+                      <option value="">Select...</option>
+                        <option value="جاردنز 101">جاردنز 101</option>
+                        <option value="تلال السخنة 102">تلال السخنة 102</option>
+                        <option value="ستيلا 103">ستيلا 103</option>
+                        <option value="الدبلو 104">الدبلو 104</option>
+                        <option value="تلال الساحل 105">تلال الساحل 105</option>
+                        <option value="سوان لك 106">سوان لك 106</option>
+                        <option value="كاسكادا 107">كاسكادا 107</option>
+                        <option value="لافيستا باي 108">لافيستا باي 108</option>
+                        <option value="راس الحكمة 109">راس الحكمة 109</option>
+                        <option value="لازوردي 110">لازوردي 110</option>
+                        <option value="النادي 111">النادي 111</option>
+                        <option value="زايد 112">زايد 112</option>
+                        <option value="القطامية 115">القطامية 115</option>
+                        <option value="مخزن بلبيس 201">مخزن بلبيس 201</option>
+                        <option value="مخزن الساحل 202">مخزن الساحل 202</option>
+                  </select>
+              </div>
             </div>
 
-            <label for="quantityFile" style="display:block; text-align: left; margin-bottom: 5px; font-size: 0.9em; color: #555;">Upload Quantity File for this Transfer:</label>
-            <input type="file" id="quantityFile" accept=".xlsx">
+            <label for="quantityFile">Upload Quantity File for this Transfer (XLSX or CSV):</label>
+            <input type="file" id="quantityFile" accept=".xlsx,.csv">
             <!-- Upload button removed, file input change triggers upload directly -->
             <button id="clearQuantityButton" class="secondary-button"><span class="material-icons">clear</span>Clear Quantity File</button>
         </div>
@@ -346,35 +397,39 @@
             <h2>Transfer Log</h2>
              <button id="clearLogButton" class="secondary-button danger-button"><span class="material-icons">history_toggle_off</span>Clear Log</button>
              <button id="exportLogButton" class="secondary-button"><span class="material-icons">download</span>Export Full Log</button>
-            <table id="transferLogTable">
-                <thead>
-                    <tr>
-                        <th>Timestamp</th>
-                        <th>From</th>
-                        <th>To</th>
-                        <th>Matched</th>
-                        <th>Unmatched</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Log entries will be added here -->
-                </tbody>
-            </table>
+            <div style="max-height: 300px; overflow-y: auto; margin-top: 10px;"> <!-- Scrollable log -->
+                <table id="transferLogTable">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Matched</th>
+                            <th>Unmatched</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Log entries will be added here -->
+                         <tr><td colspan="6" style="text-align:center; color: #888;">Loading log...</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
     </div>
 
     <script>
         // --- Global Variables ---
-        let databaseData = null; // Will hold array of arrays [[header], [row1], [row2]...]
-        let databaseHeaderMap = {}; // Maps header name to column index
-        let quantityData = null; // Holds the currently loaded quantity file data
-        let transferLog = []; // Holds history of transfers [{timestamp, from, to, results, unmatched}, ...]
+        let databaseData = null; // Holds array of arrays [[header], [row1], [row2]...]. STORED IN MEMORY ONLY.
+        let databaseHeaderMap = {}; // Maps header name to column index. Stored in LS.
+        let quantityData = null; // Holds the currently loaded quantity file data. Memory only.
+        let transferLog = []; // Holds history of transfers [{timestamp, from, to, results, unmatched}, ...]. Stored in LS.
         // Default Google Sheet URL (Replace YOUR_PUBLISHED_SHEET_ID with your actual sheet ID)
+        // MAKE SURE THIS IS THE *PUBLISHED TO WEB* CSV LINK
         const DEFAULT_GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQNrRFFRPe_jrOrDZM58gRqxfsA0deD60_q2jkA7XJRRfJQ7IiBdIqNDN7JdMawjw/pub?output=csv";
-        const REQUIRED_DB_HEADERS = ['code', 'barcode', 'name'];
-        const REQUIRED_QTY_HEADERS = ['code', 'quantity'];
+        const REQUIRED_DB_HEADERS = ['code', 'barcode', 'name']; // Case-insensitive check
+        const REQUIRED_QTY_HEADERS = ['code', 'quantity']; // Case-insensitive check
 
         // --- DOM Elements ---
         const googleSheetUrlInput = document.getElementById('googleSheetUrl');
@@ -400,57 +455,63 @@
             showMessage('Initializing application...', 'info');
             googleSheetUrlInput.value = localStorage.getItem('googleSheetUrl') || DEFAULT_GOOGLE_SHEET_URL;
 
-            // Load existing data from Local Storage
-            loadFromLocalStorage();
+            // Load smaller persistent data (log, header map) from Local Storage
+            loadFromLocalStorage(); // This now ONLY loads log and header map
+            renderTransferLog(); // Render log early
 
-            // Attempt to fetch DB from stored/default URL automatically
-            if (!databaseData) { // Only fetch if not already loaded from LS
-                 await fetchDatabaseFromGoogleSheet();
-             } else {
-                 updateDbStatus(true, `Loaded ${databaseData.length -1} items from Local Storage.`);
-                 checkProcessButtonState(); // Check if processing is possible
-             }
+            // Database is NOT loaded from LS, so always try fetching or indicate need for upload
+            showMessage('Attempting to fetch database from Google Sheet...', 'info');
+            await fetchDatabaseFromGoogleSheet(); // Attempt fetch
 
-            renderTransferLog();
-            showMessage('Initialization complete. Ready.', 'success');
+            // If fetch failed or wasn't attempted, update status
+            if (!databaseData) {
+                 // Check if status wasn't already set to an error message by fetch/parse
+                if (!dbStatusDiv.classList.contains('not-loaded') || dbStatusDiv.textContent.includes('Status:')) {
+                     updateDbStatus(false, 'Ready for Fetch or File Upload.');
+                     showMessage('Database not loaded. Please Fetch from Sheet or Upload a file.', 'info');
+                 }
+            } else {
+                 // Fetch/Parse was successful, status already updated
+                 showMessage('Initialization complete. Database loaded into memory.', 'success');
+            }
+            checkProcessButtonState(); // Check button state after attempting DB load
         }
 
         function loadFromLocalStorage() {
-            const storedDb = localStorage.getItem('databaseData');
+            // ONLY load header map and log now
             const storedMap = localStorage.getItem('databaseHeaderMap');
             const storedLog = localStorage.getItem('transferLog');
 
-            if (storedDb && storedMap) {
-                try {
-                    databaseData = JSON.parse(storedDb);
-                    databaseHeaderMap = JSON.parse(storedMap);
-                    if (!Array.isArray(databaseData) || typeof databaseHeaderMap !== 'object') {
-                         throw new Error("Invalid data format in Local Storage.");
-                    }
-                    console.log("Database loaded from Local Storage.");
-                } catch (e) {
-                    console.error("Error parsing database from Local Storage:", e);
-                    localStorage.removeItem('databaseData');
-                    localStorage.removeItem('databaseHeaderMap');
-                    databaseData = null;
-                    databaseHeaderMap = {};
-                }
-            }
+            if (storedMap) { // Load header map if present
+                 try {
+                     databaseHeaderMap = JSON.parse(storedMap);
+                     // Basic validation
+                     if (typeof databaseHeaderMap !== 'object' || databaseHeaderMap === null) {
+                          throw new Error("Invalid header map format in Local Storage.");
+                     }
+                     console.log("Database header map loaded from Local Storage.");
+                 } catch (e) {
+                     console.error("Error parsing header map from Local Storage:", e);
+                     localStorage.removeItem('databaseHeaderMap'); // Clear invalid data
+                     databaseHeaderMap = {};
+                 }
+             }
 
             if (storedLog) {
                 try {
                     transferLog = JSON.parse(storedLog);
+                     // Basic validation
                      if (!Array.isArray(transferLog)) {
                         throw new Error("Invalid log format in Local Storage.");
                     }
                     console.log("Transfer log loaded from Local Storage.");
                 } catch (e) {
                     console.error("Error parsing transfer log from Local Storage:", e);
-                    localStorage.removeItem('transferLog');
+                    localStorage.removeItem('transferLog'); // Clear invalid data
                     transferLog = [];
                 }
             }
-            checkProcessButtonState(); // Update button state based on loaded data
+             // Don't check process button state here, wait until DB load attempt completes
         }
 
         // --- Event Listeners ---
@@ -467,35 +528,39 @@
         });
 
 
-        // --- Database Handling ---
+        // --- Database Handling (Loads into Memory Only) ---
 
         async function fetchDatabaseFromGoogleSheet() {
             const url = googleSheetUrlInput.value.trim();
             if (!url || !url.includes('/pub?output=csv')) {
                 showMessage('Please provide a valid Google Sheet *published* CSV URL.', 'error');
                 updateDbStatus(false, 'Invalid URL provided.');
+                checkProcessButtonState(); // Update button state
                 return;
             }
             localStorage.setItem('googleSheetUrl', url); // Save valid URL
             showMessage('Fetching database from Google Sheet...', 'info');
             updateDbStatus(false, 'Fetching...');
             fetchDbButton.disabled = true;
+            databaseFileInput.disabled = true; // Disable file input during fetch
 
             try {
                 const response = await fetch(url);
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    throw new Error(`HTTP error! Status: ${response.status} ${response.statusText || ''}`);
                 }
                 const csvText = await response.text();
+                // Directly parse CSV text
                 parseAndStoreDatabase(csvText, "Google Sheet");
 
             } catch (error) {
                 console.error("Error fetching data from Google Sheet:", error);
                 showMessage(`Failed to load database from Google Sheet: ${error.message}. Try uploading a file.`, 'error');
                 updateDbStatus(false, `Fetch failed: ${error.message}`);
-                 checkProcessButtonState(); // Re-enable process button if DB loaded previously
+                 checkProcessButtonState(); // Update button state
             } finally {
                  fetchDbButton.disabled = false;
+                 databaseFileInput.disabled = false;
              }
         }
 
@@ -505,26 +570,40 @@
 
              showMessage('Reading database file...', 'info');
              updateDbStatus(false, 'Reading file...');
+             fetchDbButton.disabled = true; // Disable fetch button during upload processing
+             databaseFileInput.disabled = true;
              const reader = new FileReader();
 
              reader.onload = function(e) {
                  try {
-                     const data = new Uint8Array(e.target.result);
-                     const workbook = XLSX.read(data, { type: 'array' });
-                     const sheetName = workbook.SheetNames[0];
-                     const worksheet = workbook.Sheets[sheetName];
-                     if (!worksheet) throw new Error("Sheet not found in the Excel file.");
+                     const fileType = file.name.split('.').pop().toLowerCase();
+                     let csvText;
 
-                     // Convert sheet to CSV text to reuse parsing logic
-                     const csvText = XLSX.utils.sheet_to_csv(worksheet);
+                     if (fileType === 'xlsx') {
+                         const data = new Uint8Array(e.target.result);
+                         const workbook = XLSX.read(data, { type: 'array' });
+                         const sheetName = workbook.SheetNames[0];
+                         const worksheet = workbook.Sheets[sheetName];
+                         if (!worksheet) throw new Error("Sheet not found in the Excel file.");
+                         csvText = XLSX.utils.sheet_to_csv(worksheet);
+                     } else if (fileType === 'csv') {
+                         // Assuming browser reads CSV as text correctly (might need encoding handling for complex cases)
+                         csvText = e.target.result;
+                     } else {
+                         throw new Error("Unsupported file type. Please upload XLSX or CSV.");
+                     }
+
                      parseAndStoreDatabase(csvText, `File: ${file.name}`);
 
                  } catch (error) {
                      console.error("Error processing database file:", error);
                      showMessage(`Error processing database file: ${error.message}`, 'error');
                      updateDbStatus(false, 'File processing error.');
-                      checkProcessButtonState();
                      databaseFileInput.value = ''; // Clear input on error
+                     checkProcessButtonState();
+                 } finally {
+                     fetchDbButton.disabled = false;
+                     databaseFileInput.disabled = false;
                  }
              };
              reader.onerror = function(error) {
@@ -532,21 +611,33 @@
                  updateDbStatus(false, 'File reading error.');
                  databaseFileInput.value = ''; // Clear input on error
                  checkProcessButtonState();
+                 fetchDbButton.disabled = false;
+                 databaseFileInput.disabled = false;
              };
-             reader.readAsArrayBuffer(file);
+
+             // Read as ArrayBuffer for XLSX, as Text for CSV
+             if (file.name.endsWith('.xlsx')) {
+                reader.readAsArrayBuffer(file);
+             } else {
+                 reader.readAsText(file); // Read CSV as text
+             }
          }
 
 
+        // Parses CSV text and stores data in memory, header map in LS
         function parseAndStoreDatabase(csvText, source) {
             try {
-                const lines = csvText.trim().split('\n');
-                if (lines.length < 1) throw new Error("CSV data is empty.");
+                // Basic CSV parsing - handles simple cases, might need improvement for complex CSVs with quotes/newlines
+                const lines = csvText.trim().split(/\r?\n/); // Split by newline, handling Windows/Unix endings
+                if (lines.length < 1) throw new Error("CSV data is empty or invalid.");
 
-                // Parse headers
+                // Parse headers (first line)
                 const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
                 const tempHeaderMap = {};
                 headers.forEach((header, index) => {
-                    tempHeaderMap[header] = index;
+                    if (header) { // Avoid empty headers
+                       tempHeaderMap[header] = index;
+                    }
                 });
 
                 // Validate required headers
@@ -556,64 +647,69 @@
                 }
 
                 // Parse data rows
-                const tempData = [headers]; // Start with headers as first row
+                const tempData = [headers]; // Start with headers as first row (useful for consistency)
                 for (let i = 1; i < lines.length; i++) {
-                    // Basic CSV parsing (doesn't handle quotes perfectly, use a library for complex CSV)
+                     if (!lines[i].trim()) continue; // Skip empty lines
+                    // Very basic split, won't handle commas within quotes correctly
                     const row = lines[i].split(',').map(cell => cell.trim());
-                     if (row.length === headers.length && row.some(cell => cell !== '')) { // Ensure same number of columns and not empty
+                     // Add row if it has the expected number of columns and isn't completely empty
+                     if (row.length === headers.length && row.some(cell => cell !== '')) {
                          tempData.push(row);
+                     } else {
+                         console.warn(`Skipping row ${i + 1} due to column mismatch or emptiness:`, lines[i]);
                      }
                 }
 
                  if (tempData.length <= 1) {
-                     throw new Error("No data rows found in the database source.");
+                     throw new Error("No valid data rows found in the database source.");
                  }
 
-                // Success - Update global variables and Local Storage
-                databaseData = tempData;
-                databaseHeaderMap = tempHeaderMap;
-
-                localStorage.setItem('databaseData', JSON.stringify(databaseData));
-                localStorage.setItem('databaseHeaderMap', JSON.stringify(databaseHeaderMap));
+                // --- Success ---
+                // Update global variables: DB in memory, header map in memory AND LS
+                databaseData = tempData; // Store in memory
+                databaseHeaderMap = tempHeaderMap; // Store in memory
+                localStorage.setItem('databaseHeaderMap', JSON.stringify(databaseHeaderMap)); // Store map in LS
 
                 const itemCount = databaseData.length - 1; // Exclude header row
-                showMessage(`Database loaded successfully from ${source} (${itemCount} items).`, 'success');
-                updateDbStatus(true, `Loaded ${itemCount} items from ${source}.`);
+                showMessage(`Database loaded successfully into memory from ${source} (${itemCount} items).`, 'success');
+                updateDbStatus(true, `Loaded ${itemCount} items into memory from ${source}.`);
                 databaseFileInput.value = ''; // Clear file input after successful processing
-                checkProcessButtonState();
 
             } catch (error) {
+                 // --- Failure ---
                  console.error("Error parsing database data:", error);
                  showMessage(`Error parsing database: ${error.message}`, 'error');
                  updateDbStatus(false, `Parsing error: ${error.message}`);
-                 databaseData = null; // Reset on error
-                 databaseHeaderMap = {};
-                 localStorage.removeItem('databaseData');
-                 localStorage.removeItem('databaseHeaderMap');
-                  checkProcessButtonState();
+                 databaseData = null; // Reset memory variable
+                 databaseHeaderMap = {}; // Reset memory variable
+                 localStorage.removeItem('databaseHeaderMap'); // Clear map from LS on error too
+
+            } finally {
+                // Always check button state after parse attempt
+                 checkProcessButtonState();
             }
         }
 
 
+        // Clears DB from memory and header map from memory/LS
         function clearDatabase() {
-            if (confirm("Are you sure you want to clear the stored database? You will need to fetch or upload it again.")) {
-                databaseData = null;
-                databaseHeaderMap = {};
-                localStorage.removeItem('databaseData');
-                localStorage.removeItem('databaseHeaderMap');
-                showMessage('Stored database cleared.', 'info');
+            if (confirm("Are you sure you want to clear the database from memory and remove the stored header map? You will need to fetch or upload it again.")) {
+                databaseData = null; // Clear from memory
+                databaseHeaderMap = {}; // Clear from memory
+                localStorage.removeItem('databaseHeaderMap'); // Remove the map from LS
+                showMessage('Database cleared from memory. Header map removed from storage.', 'info');
                 updateDbStatus(false, 'Cleared.');
-                 checkProcessButtonState();
+                checkProcessButtonState();
             }
         }
 
         function updateDbStatus(isLoaded, message) {
              dbStatusDiv.textContent = `Database Status: ${isLoaded ? 'Loaded' : 'Not Loaded'} - ${message}`;
-             dbStatusDiv.style.color = isLoaded ? 'green' : 'red';
+             dbStatusDiv.className = isLoaded ? 'loaded' : 'not-loaded'; // Add class for styling
         }
 
 
-        // --- Quantity Handling ---
+        // --- Quantity Handling (Loads into Memory Only) ---
         function handleQuantityUpload(event) {
             const file = event.target.files[0];
             if (!file) {
@@ -626,17 +722,29 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const sheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[sheetName];
-                    if (!worksheet) throw new Error("Sheet not found in quantity file.");
+                    const fileType = file.name.split('.').pop().toLowerCase();
+                    let sheetData; // Will hold array of arrays
 
-                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }); // Read as array of arrays
+                    if (fileType === 'xlsx') {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const sheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[sheetName];
+                        if (!worksheet) throw new Error("Sheet not found in quantity file.");
+                        sheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" }); // Read as array of arrays
+                    } else if (fileType === 'csv') {
+                         const csvText = e.target.result;
+                         const lines = csvText.trim().split(/\r?\n/);
+                         sheetData = lines.map(line => line.split(',').map(cell => cell.trim()));
+                    } else {
+                        throw new Error("Unsupported quantity file type. Please upload XLSX or CSV.");
+                    }
 
-                     if (jsonData.length < 1) throw new Error("Quantity sheet is empty.");
 
-                     const headers = jsonData[0].map(h => String(h).trim().toLowerCase());
+                     if (!sheetData || sheetData.length < 1) throw new Error("Quantity file is empty or invalid.");
+
+                     // Trim headers and convert to lowercase for reliable matching
+                     const headers = sheetData[0].map(h => String(h).trim().toLowerCase());
 
                     // Validate required headers
                      const missingHeaders = REQUIRED_QTY_HEADERS.filter(reqH => !headers.includes(reqH));
@@ -644,8 +752,13 @@
                         throw new Error(`Missing required quantity headers: ${missingHeaders.join(', ')}`);
                      }
 
-                    // Filter out empty rows
-                     quantityData = jsonData.filter((row, index) => index === 0 || row.some(cell => cell !== null && cell !== ''));
+                    // Filter out fully empty rows AFTER the header row
+                     quantityData = [headers]; // Start with normalized headers
+                     for(let i = 1; i < sheetData.length; i++) {
+                         if (sheetData[i].some(cell => cell !== null && String(cell).trim() !== '')) {
+                             quantityData.push(sheetData[i]);
+                         }
+                     }
 
                     if (quantityData.length <= 1) { // Only header row left
                         throw new Error("No valid data rows found in the quantity file.");
@@ -668,7 +781,13 @@
                  quantityFileInput.value = '';
                  checkProcessButtonState();
              };
-            reader.readAsArrayBuffer(file);
+
+             // Read based on type
+              if (file.name.endsWith('.xlsx')) {
+                 reader.readAsArrayBuffer(file);
+              } else {
+                  reader.readAsText(file); // Read CSV as text
+              }
         }
 
 
@@ -687,23 +806,15 @@
              const dbLoaded = databaseData && databaseData.length > 1;
              const qtyLoaded = quantityData && quantityData.length > 1;
              processDownloadButton.disabled = !(dbLoaded && qtyLoaded);
-
-            // Optionally provide more specific feedback
-             if (!dbLoaded) {
-                 updateDbStatus(false, 'Database not loaded.');
-             }
-             if (!qtyLoaded && dbLoaded) {
-                 // Don't overwrite DB status if it's okay
-             }
          }
 
         function processDataAndDownload() {
             const locationFromValue = locationFromSelect.value;
             const locationToValue = locationToSelect.value;
 
-            // Re-validate everything before processing
+            // --- Pre-processing Validations ---
             if (!databaseData || databaseData.length <= 1) {
-                showMessage('Database is not loaded. Please fetch or upload it first.', 'error');
+                showMessage('Database is not loaded into memory. Please fetch or upload it first.', 'error');
                 return;
             }
             if (!quantityData || quantityData.length <= 1) {
@@ -722,104 +833,159 @@
             showMessage('Processing transfer...', 'info');
             processDownloadButton.disabled = true; // Disable during processing
 
-            try {
-                const results = [];
-                const unmatched = [];
+            // --- Use setTimeout to allow UI update before potentially long processing ---
+            setTimeout(() => {
+                try {
+                    const results = [];
+                    const unmatched = [];
 
-                // Find column indices in the loaded databaseData
-                const codeColDb = databaseHeaderMap['code'];
-                const barcodeColDb = databaseHeaderMap['barcode'];
-                const nameColDb = databaseHeaderMap['name'];
-
-                // Find column indices in the loaded quantityData
-                const qtyHeaders = quantityData[0].map(h => String(h).trim().toLowerCase());
-                const codeColQty = qtyHeaders.indexOf('code');
-                const quantityColQty = qtyHeaders.indexOf('quantity');
-
-                // Create a lookup map from the database for faster searching
-                const dbLookup = new Map();
-                for (let j = 1; j < databaseData.length; j++) { // Start from 1 to skip header
-                    const dbRow = databaseData[j];
-                    const dbCode = String(dbRow[codeColDb]).trim();
-                    if (dbCode) {
-                         // Store the entire row or relevant parts
-                        dbLookup.set(dbCode, {
-                            barcode: dbRow[barcodeColDb],
-                            name: dbRow[nameColDb]
-                            // Add other DB columns if needed in results
-                        });
+                    // Find column indices in the loaded databaseData (using the stored header map)
+                    // Check if map is valid first
+                    if (Object.keys(databaseHeaderMap).length === 0) {
+                        throw new Error("Database header map is missing or invalid. Cannot process.");
                     }
-                }
+                    const codeColDb = databaseHeaderMap['code'];
+                    const barcodeColDb = databaseHeaderMap['barcode'];
+                    const nameColDb = databaseHeaderMap['name'];
 
-                // Process quantity data
-                for (let i = 1; i < quantityData.length; i++) { // Start from 1 to skip header
-                    const quantityRow = quantityData[i];
-                    const code = String(quantityRow[codeColQty]).trim();
-                    const quantity = quantityRow[quantityColQty]; // Keep original type if possible
+                    // Double check required columns were found in the map
+                    if (codeColDb === undefined || barcodeColDb === undefined || nameColDb === undefined) {
+                         throw new Error("Required columns (code, barcode, name) not found in database header map.");
+                    }
 
-                    if (!code || quantity === undefined || quantity === null || quantity === '') continue; // Skip rows without code or quantity
 
-                    const matchedDbItem = dbLookup.get(code);
+                    // Find column indices in the loaded quantityData
+                    const qtyHeaders = quantityData[0]; // Headers are already normalized (lowercase, trimmed)
+                    const codeColQty = qtyHeaders.indexOf('code');
+                    const quantityColQty = qtyHeaders.indexOf('quantity');
 
-                    if (matchedDbItem) {
-                        results.push({
-                            Code: code,
-                            Barcode: matchedDbItem.barcode,
-                            Name: matchedDbItem.name,
-                            Quantity: quantity
-                        });
+                    if (codeColQty === -1 || quantityColQty === -1) {
+                         throw new Error("Required columns (code, quantity) not found in quantity file headers.");
+                    }
+
+                    // Create a lookup map from the database for faster searching
+                    console.time("BuildDBLookup"); // Start timing
+                    const dbLookup = new Map();
+                    for (let j = 1; j < databaseData.length; j++) { // Start from 1 to skip header
+                        const dbRow = databaseData[j];
+                        // Ensure row has enough columns before accessing indices
+                        if (dbRow && dbRow.length > Math.max(codeColDb, barcodeColDb, nameColDb)) {
+                            const dbCode = String(dbRow[codeColDb]).trim();
+                            if (dbCode) {
+                                dbLookup.set(dbCode, {
+                                    barcode: dbRow[barcodeColDb] || '', // Default to empty string if undefined/null
+                                    name: dbRow[nameColDb] || ''
+                                });
+                            }
+                        } else {
+                            console.warn(`Skipping DB row ${j+1} due to insufficient columns.`);
+                        }
+                    }
+                    console.timeEnd("BuildDBLookup"); // End timing
+
+                    // Process quantity data
+                    console.time("ProcessQuantity");
+                    for (let i = 1; i < quantityData.length; i++) { // Start from 1 to skip header
+                        const quantityRow = quantityData[i];
+                         // Ensure row has enough columns
+                         if (quantityRow && quantityRow.length > Math.max(codeColQty, quantityColQty)) {
+                            const code = String(quantityRow[codeColQty]).trim();
+                            let quantity = quantityRow[quantityColQty];
+
+                            // Basic validation for quantity row
+                            if (!code || quantity === undefined || quantity === null || String(quantity).trim() === '') {
+                                console.warn(`Skipping Qty row ${i+1}: Missing code or quantity.`);
+                                continue;
+                            }
+                            // Attempt to convert quantity to number, handle potential errors
+                             const numQuantity = Number(quantity);
+                             if (isNaN(numQuantity)) {
+                                 console.warn(`Skipping Qty row ${i+1}: Quantity "${quantity}" is not a valid number.`);
+                                 // Optionally add to a specific 'invalid quantity' unmatched list
+                                 unmatched.push({ Code: code, Quantity: `INVALID (${quantity})` });
+                                 continue; // Skip further processing for this row
+                             }
+                             quantity = numQuantity; // Use the numeric quantity
+
+
+                            const matchedDbItem = dbLookup.get(code);
+
+                            if (matchedDbItem) {
+                                results.push({
+                                    Code: code,
+                                    Barcode: matchedDbItem.barcode,
+                                    Name: matchedDbItem.name,
+                                    Quantity: quantity
+                                });
+                            } else {
+                                unmatched.push({
+                                    Code: code,
+                                    Quantity: quantity
+                                });
+                            }
+                        } else {
+                             console.warn(`Skipping Qty row ${i+1} due to insufficient columns.`);
+                        }
+                    }
+                    console.timeEnd("ProcessQuantity");
+
+                    // --- Generate Excel File ---
+                    console.time("GenerateExcel");
+                    const wb = XLSX.utils.book_new();
+
+                    // Results Sheet
+                    if (results.length > 0) {
+                        const resultsHeader = ["Code", "Barcode", "Name", "Quantity"];
+                        // Ensure data is in the correct order for aoa_to_sheet
+                        const resultsMappedData = results.map(item => [item.Code, item.Barcode, item.Name, item.Quantity]);
+                        resultsMappedData.unshift(resultsHeader); // Prepend header row
+                        const resultsSheet = XLSX.utils.aoa_to_sheet(resultsMappedData, { cellDates: false }); // Use cellDates: false if dates aren't expected
+                        resultsSheet['!cols'] = [{ wch: 15 }, { wch: 20 }, { wch: 50 }, { wch: 10 }]; // Column widths
+                        XLSX.utils.book_append_sheet(wb, resultsSheet, "Results");
                     } else {
-                        unmatched.push({
-                            Code: code,
-                            Quantity: quantity
-                        });
+                         // Optionally create an empty Results sheet or skip it
+                         const emptySheet = XLSX.utils.aoa_to_sheet([["No matched items found."]]);
+                         XLSX.utils.book_append_sheet(wb, emptySheet, "Results");
                     }
+
+
+                    // Unmatched Sheet
+                    if (unmatched.length > 0) {
+                        const unmatchedHeader = ["Code", "Quantity"];
+                        const unmatchedMappedData = unmatched.map(item => [item.Code, item.Quantity]);
+                        unmatchedMappedData.unshift(unmatchedHeader);
+                        const unmatchedSheet = XLSX.utils.aoa_to_sheet(unmatchedMappedData, { cellDates: false });
+                         unmatchedSheet['!cols'] = [{ wch: 15 }, { wch: 10 }];
+                        XLSX.utils.book_append_sheet(wb, unmatchedSheet, "Unmatched");
+                    }
+
+                    // Generate filename
+                    const now = new Date();
+                    // Use local date format, replace slashes/colons for filename safety
+                     const formattedDate = now.toLocaleDateString('en-CA'); // YYYY-MM-DD format is safe
+                     const formattedTime = now.toLocaleTimeString('en-GB').replace(/:/g, '-'); // HH-MM-SS format
+                    const filename = `Transfer_${locationFromValue}_to_${locationToValue}_${formattedDate}_${formattedTime}.xlsx`;
+
+                    // Trigger download
+                    XLSX.writeFile(wb, filename);
+                    console.timeEnd("GenerateExcel");
+
+                    // --- Log the Transfer ---
+                    logTransfer(locationFromValue, locationToValue, results, unmatched);
+
+                    // --- Cleanup and Feedback ---
+                    clearQuantity(); // Clear the quantity file input and data after successful processing
+                    showMessage(`Transfer processed. Found ${results.length} matched, ${unmatched.length} unmatched items. Results downloaded.`, 'success');
+
+                } catch (error) {
+                    console.error("Error processing data:", error);
+                    showMessage(`Error during processing: ${error.message}`, 'error');
+                    // Do NOT clear quantity on error, user might want to retry
+                } finally {
+                     processDownloadButton.disabled = false; // Re-enable button
+                     checkProcessButtonState(); // Final check
                 }
-
-                // --- Generate Excel File ---
-                const wb = XLSX.utils.book_new();
-
-                // Results Sheet
-                const resultsHeader = ["Code", "Barcode", "Name", "Quantity"];
-                const resultsMappedData = results.map(item => [item.Code, item.Barcode, item.Name, item.Quantity]);
-                resultsMappedData.unshift(resultsHeader); // Add header row
-                const resultsSheet = XLSX.utils.aoa_to_sheet(resultsMappedData);
-                resultsSheet['!cols'] = [{ wch: 15 }, { wch: 20 }, { wch: 50 }, { wch: 10 }]; // Column widths
-                XLSX.utils.book_append_sheet(wb, resultsSheet, "Results");
-
-                // Unmatched Sheet
-                if (unmatched.length > 0) {
-                    const unmatchedHeader = ["Code", "Quantity"];
-                    const unmatchedMappedData = unmatched.map(item => [item.Code, item.Quantity]);
-                    unmatchedMappedData.unshift(unmatchedHeader);
-                    const unmatchedSheet = XLSX.utils.aoa_to_sheet(unmatchedMappedData);
-                     unmatchedSheet['!cols'] = [{ wch: 15 }, { wch: 10 }];
-                    XLSX.utils.book_append_sheet(wb, unmatchedSheet, "Unmatched");
-                }
-
-                // Generate filename
-                const now = new Date();
-                // Use local date format, replace slashes/colons for filename safety
-                 const formattedDate = now.toLocaleDateString().replace(/\//g, '-');
-                 const formattedTime = now.toLocaleTimeString().replace(/:/g, '-').replace(/\s/g, '_');
-                const filename = `Transfer_${locationFromValue}_to_${locationToValue}_${formattedDate}_${formattedTime}.xlsx`;
-
-                // Trigger download
-                XLSX.writeFile(wb, filename);
-
-                // --- Log the Transfer ---
-                logTransfer(locationFromValue, locationToValue, results, unmatched);
-
-                // --- Cleanup and Feedback ---
-                clearQuantity(); // Clear the quantity file input and data
-                showMessage(`Transfer processed. Found ${results.length} matched, ${unmatched.length} unmatched items. Results downloaded.`, 'success');
-
-            } catch (error) {
-                console.error("Error processing data:", error);
-                showMessage(`Error during processing: ${error.message}`, 'error');
-            } finally {
-                 checkProcessButtonState(); // Re-check button state after processing attempt
-            }
+            }, 10); // End of setTimeout callback, 10ms delay
         }
 
         // --- Transfer Log Handling ---
@@ -827,9 +993,6 @@
         function logTransfer(from, to, resultsData, unmatchedData) {
             const timestamp = new Date().toISOString(); // ISO format is good for sorting/parsing
 
-             // Store only summary data in the log to keep LocalStorage size manageable
-             // If you need to re-download exact files, you'd need to store resultsData/unmatchedData
-             // but that can quickly exceed LocalStorage limits.
             const logEntry = {
                 id: timestamp + "_" + Math.random().toString(36).substring(2, 9), // Unique ID
                 timestamp: timestamp,
@@ -837,12 +1000,14 @@
                 locationTo: to,
                 matchedCount: resultsData.length,
                 unmatchedCount: unmatchedData.length,
-                 // Storing full data can be large! Consider if needed.
-                 // results: resultsData,
-                 // unmatched: unmatchedData
+                // DO NOT store full data in log by default due to LocalStorage limits
             };
 
-            transferLog.unshift(logEntry); // Add to the beginning of the array
+            transferLog.unshift(logEntry); // Add to the beginning
+            // Limit log size if necessary (e.g., keep last 50 entries)
+            // if (transferLog.length > 50) {
+            //     transferLog = transferLog.slice(0, 50);
+            // }
             localStorage.setItem('transferLog', JSON.stringify(transferLog));
             renderTransferLog(); // Update the displayed table
         }
@@ -870,17 +1035,18 @@
                 row.insertCell().textContent = entry.matchedCount;
                 row.insertCell().textContent = entry.unmatchedCount;
 
-                // Actions Cell (Example: Delete Entry)
+                // Actions Cell
                 const actionsCell = row.insertCell();
                 const deleteButton = document.createElement('button');
                 deleteButton.innerHTML = '<span class="material-icons" style="font-size: 1em;">delete</span>'; // Smaller icon
                  deleteButton.classList.add('secondary-button', 'danger-button');
                  deleteButton.title = 'Delete this log entry';
                 deleteButton.style.padding = '2px 6px'; // Smaller padding
-                 deleteButton.onclick = () => deleteLogEntry(entry.id);
+                 deleteButton.onclick = (e) => {
+                     e.stopPropagation(); // Prevent row click if implemented later
+                     deleteLogEntry(entry.id);
+                 }
                 actionsCell.appendChild(deleteButton);
-
-                // Add more actions here if needed (e.g., re-download if full data was stored)
             });
         }
 
@@ -913,20 +1079,24 @@
              try {
                  const exportData = transferLog.map(entry => ({
                      Timestamp: new Date(entry.timestamp).toLocaleString(),
-                     From: entry.locationFrom,
-                     To: entry.locationTo,
-                     Matched: entry.matchedCount,
-                     Unmatched: entry.unmatchedCount,
-                      // Add more fields if you stored more data in the log entry
+                     'From Location': entry.locationFrom, // Use explicit names for headers
+                     'To Location': entry.locationTo,
+                     'Matched Items': entry.matchedCount,
+                     'Unmatched Items': entry.unmatchedCount,
                  }));
 
                  const worksheet = XLSX.utils.json_to_sheet(exportData);
-                  worksheet['!cols'] = [{ wch: 25 }, { wch: 20 }, { wch: 20 }, { wch: 10 }, { wch: 10 }];
+                 // Auto-calculate column widths (basic estimation)
+                 const cols = Object.keys(exportData[0]).map(key => ({
+                     wch: Math.max(key.length, ...exportData.map(row => String(row[key]).length)) + 2 // Add padding
+                 }));
+                  worksheet['!cols'] = cols;
+
                  const workbook = XLSX.utils.book_new();
                  XLSX.utils.book_append_sheet(workbook, worksheet, 'Transfer Log');
 
                  const now = new Date();
-                  const formattedDate = now.toLocaleDateString().replace(/\//g, '-');
+                 const formattedDate = now.toLocaleDateString('en-CA');
                  const filename = `Kero_Transfer_Log_${formattedDate}.xlsx`;
                  XLSX.writeFile(workbook, filename);
                  showMessage('Transfer log exported successfully.', 'success');
@@ -938,18 +1108,10 @@
 
 
         // --- Utility Functions ---
-        function showMessage(message, type = 'error') { // Default to error
+        function showMessage(message, type = 'info') { // Default to info
             messageDiv.innerText = message;
-            messageDiv.className = type; // 'success', 'error', or 'info'
-            // Auto-clear info/success messages after a delay?
-            // if (type === 'success' || type === 'info') {
-            //     setTimeout(() => {
-            //         if (messageDiv.innerText === message) { // Clear only if message hasn't changed
-            //             messageDiv.innerText = '';
-            //             messageDiv.className = '';
-            //         }
-            //     }, 5000); // Clear after 5 seconds
-            // }
+            // Add 'visible' class to manage display via CSS, remove existing type classes first
+            messageDiv.className = 'visible ' + type;
         }
 
     </script>
