@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- CHANGE VERSION IN TITLE -->
-    <title>Kero Assistance - Stock Transfer (v1.6 - Embedded URL)</title>
+    <!-- Updated Version in Title -->
+    <title>Kero Assistance - Stock Transfer (v1.7.1 - GAS URL Set)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -14,7 +14,7 @@
     <style>
         /* --- Keep your existing styles --- */
         body { font-family: 'Arial', sans-serif; background-color: #f0f8ff; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; color: #424242; }
-        /* --- CHANGE VERSION --- */
+        /* Updated Version */
         .version { position: absolute; top: 5px; right: 10px; font-size: 0.8em; color: grey; }
         .container { background-color: #fff; border-radius: 12px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 30px; width: 85%; max-width: 900px; text-align: center; margin-top: 20px; }
         h1 { color: #1e88e5; margin-bottom: 20px; }
@@ -22,13 +22,10 @@
         #stock-transfer { font-size: 1.5em; font-style: italic; }
         .section { margin-bottom: 25px; padding: 20px; border: 1px solid #bbdefb; border-radius: 8px; background-color: #e3f2fd; text-align: left; }
         .section h2 { text-align: center; margin-bottom: 15px; }
-        /* Config section is now simpler */
         .config-container { margin-bottom: 5px; text-align: center; color: #666; font-size: 0.9em;}
         .location-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .location-container select { width: 48%; padding: 10px; border: 1px solid #bbdefb; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
         input[type="file"] { display: none; }
-        /* Remove text input style if no other text inputs are needed */
-        /* input[type="text"] { margin: 8px 0; padding: 10px; border: 1px solid #bbdefb; border-radius: 5px; width: 100%; box-sizing: border-box; } */
         label { display: block; margin-bottom: 5px; font-weight: bold; color: #1e88e5; }
         button { background-color: #009688; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 16px; margin: 10px 5px 5px 5px; transition: background-color 0.3s ease; display: inline-block; }
         .button-container { text-align: center; margin-top: 15px; }
@@ -46,8 +43,8 @@
 </head>
 
 <body>
-    <!-- CHANGE VERSION -->
-    <div class="version">v 1.6 - Embedded URL</div>
+    <!-- Updated Version -->
+    <div class="version">v 1.7.1 - GAS URL Set</div>
 
     <div id="appContent" class="container">
         <h1>
@@ -56,12 +53,11 @@
             <span id="stock-transfer">Stock Transfer Management</span>
         </h1>
 
-        <!-- REMOVED Configuration Section or simplified -->
+        <!-- Simplified Configuration Section -->
         <div class="section">
              <h2>Processing Setup</h2>
              <div class="config-container">
-                 <!-- Removed the URL input field and label -->
-                 <p>Database access is pre-configured.</p>
+                 <p>Database access is pre-configured via Google Apps Script.</p>
              </div>
         </div>
 
@@ -69,8 +65,8 @@
         <div class="section">
             <h2>Quantity & Locations</h2>
             <div class="location-container">
-                 <select id="locationFrom" class="location-select"> <option value="">Select Location From</option> <option value="جاردنز 101">جاردنز 101</option> <option value="تلال السخنة 102">تلال السخنة 102</option> <option value="ستيلا 103">ستيلا 103</option> <option value="الدبلو 104">الدبلو 104</option> <option value="تلال الساحل 105">تلال الساحل 105</option> <option value="سوان لك 106">سوان لك 106</option> <option value="كاسكادا 107">كاسكادا 107</option> <option value="لافيستا باي 108">لافيستا باي 108</option> <option value="راس الحكمة 109">راس الحكمة 109</option> <option value="لازوردي 110">لازوردي 110</option> <option value="النادي 111">النادي 111</option> <option value="زايد 112">زايد 112</option> <option value="القطامية 115">القطامية 115</option> <option value="مخزن بلبيس 201">مخزن بلبيس 201</option> <option value="مخزن الساحل 202">مخزن الساحل 202</option> </select>
-                 <select id="locationTo" class="location-select"> <option value="">Select Location To</option> <option value="جاردنز 101">جاردنز 101</option> <option value="تلال السخنة 102">تلال السخنة 102</option> <option value="ستيلا 103">ستيلا 103</option> <option value="الدبلو 104">الدبلو 104</option> <option value="تلال الساحل 105">تلال الساحل 105</option> <option value="سوان لك 106">سوان لك 106</option> <option value="كاسكادا 107">كاسكادا 107</option> <option value="لافيستا باي 108">لافيستا باي 108</option> <option value="راس الحكمة 109">راس الحكمة 109</option> <option value="لازوردي 110">لازوردي 110</option> <option value="النادي 111">النادي 111</option> <option value="زايد 112">زايد 112</option> <option value="القطامية 115">القطامية 115</option> <option value="مخزن بلبيس 201">مخزن بلبيس 201</option> <option value="مخزن الساحل 202">مخزن الساحل 202</option> </select>
+                 <select id="locationFrom" class="location-select"> <option value="">Select Location From</option> <option value="جاردنز 101">جاردنز 101</option> <option value="تلال السخنة 102">تلال السخنة 102</option> <option value="ستيلا 103">ستيلا 103</option> <option value="الدبلو 104">الدبلو 104</option> <option value="تلال الساحل 105">تلال الساحل 105</option> <option value="سوان لك 106">سوان لك 106</option> <option value="كاسكادا 107">كاسكادا 107</option> <option value="لافيستا باي 108">لافيستا باي 108</option> <option value="راس الحكمة 109">راس الحكمة 109</option> <option value="لازوردي 110">لازوردي 110</option> <option value="النادي 111">النادي 111</option> <option value="زايد 112">زايد 112</option> <option value="القطامية 115">القطامية 115</option> <option value="مخزن بلبيس 201">مخزن بلبيс 201</option> <option value="مخزن الساحل 202">مخزن الساحل 202</option> </select>
+                 <select id="locationTo" class="location-select"> <option value="">Select Location To</option> <option value="جاردنز 101">جاردنز 101</option> <option value="تلال السخنة 102">تلال السخنة 102</option> <option value="ستيلا 103">ستيلا 103</option> <option value="الدبلو 104">الدبلو 104</option> <option value="تلال الساحل 105">تلال الساحل 105</option> <option value="سوان لك 106">سوان لك 106</option> <option value="كاسكادا 107">كاسكادا 107</option> <option value="لافيستا باي 108">لافيستا باي 108</option> <option value="راس الحكمة 109">راس الحكمة 109</option> <option value="لازوردي 110">لازوردي 110</option> <option value="النادي 111">النادي 111</option> <option value="زايد 112">زايد 112</option> <option value="القطامية 115">القطامية 115</option> <option value="مخزن بلبيс 201">مخزن بلبيс 201</option> <option value="مخزن الساحل 202">مخزن الساحل 202</option> </select>
             </div>
              <hr style="border: 0; border-top: 1px solid #bbdefb; margin: 20px 0;">
              <label for="quantityFile">Upload Quantity File (.xlsx):</label>
@@ -87,15 +83,16 @@
     </div>
 
     <script>
-        // --- *** PASTE YOUR DEPLOYED GAS URL HERE *** ---
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbzf4-ZUrLdgAi2AXf1Hbor1fs3dxWrDegJoKbxLsmSv_2p3LONR85cJtFHvmrYxGnjh2Q/exec";
-        // Example: const GAS_URL = "https://script.google.com/macros/s/AKfycby.../exec";
+        console.log("Kero Assistance App v1.7.1 Initializing...");
 
-        // Store quantity data AND its header indices
+        // --- *** GAS URL IS NOW SET DIRECTLY HERE *** ---
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbzf4-ZUrLdgAi2AXf1Hbor1fs3dxWrDegJoKbxLsmSv_2p3LONR85cJtFHvmrYxGnjh2Q/exec";
+
+        // Global state for quantity file processing
         let quantityInfo = {
-            data: null,
-            codeIndex: -1,
-            quantityIndex: -1
+            data: null,        // Holds the array of arrays from the sheet
+            codeIndex: -1,     // Holds the 0-based index of the 'code' column
+            quantityIndex: -1  // Holds the 0-based index of the 'quantity' column
         };
 
         // --- Helper Functions ---
@@ -103,155 +100,214 @@
             const messageDiv = document.getElementById('message');
             messageDiv.innerText = message;
             messageDiv.className = type;
+            if (type === 'error') {
+                console.error("UI Message:", message);
+            } else {
+                console.log("UI Message:", message);
+            }
         }
 
         function enableProcessButton() {
              const processButton = document.getElementById('processDownloadButton');
-             // Enable only if quantity data is loaded (URL is now fixed)
-             processButton.disabled = !(quantityInfo.data && quantityInfo.codeIndex !== -1 && quantityInfo.quantityIndex !== -1);
+             // Check if the URL is valid (not the placeholder) AND quantity data is loaded
+             const isUrlSet = (GAS_URL && GAS_URL !== "PASTE_YOUR_DEPLOYED_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE"); // Optional stricter check
+             const isQuantityReady = (quantityInfo.data && quantityInfo.codeIndex !== -1 && quantityInfo.quantityIndex !== -1);
+             const canProcess = isUrlSet && isQuantityReady;
+             processButton.disabled = !canProcess;
+             // console.log(`Process button enabled: ${canProcess} (URL Set: ${isUrlSet}, Quantity Ready: ${isQuantityReady})`);
         }
 
         // --- Event Handlers ---
         function handleQuantityUpload(event) {
-            // (Keep the existing handleQuantityUpload function - no changes needed here)
-             const file = event.target.files[0];
-             quantityInfo = { data: null, codeIndex: -1, quantityIndex: -1 };
-             const uploadButton = document.getElementById('uploadQuantityButton');
-             enableProcessButton();
+            console.log("handleQuantityUpload triggered.");
+            const file = event.target.files[0];
+            quantityInfo = { data: null, codeIndex: -1, quantityIndex: -1 };
+            const uploadButton = document.getElementById('uploadQuantityButton');
+            enableProcessButton();
 
-             if (!file) {
-                  uploadButton.textContent = 'Choose Quantity File';
-                  showMessage('Quantity file selection cancelled.', 'error');
-                 return;
-             }
+            if (!file) {
+                 uploadButton.textContent = 'Choose Quantity File';
+                 showMessage('Quantity file selection cancelled.', 'error');
+                 console.warn("No file selected or selection cancelled.");
+                return;
+            }
 
-             uploadButton.textContent = file.name;
-             showMessage('Reading quantity file...', 'loading');
+            uploadButton.textContent = file.name;
+            showMessage('Reading quantity file...', 'loading');
+            console.log(`Attempting to read file: ${file.name} (Size: ${file.size} bytes)`);
 
-             const reader = new FileReader();
-             reader.onload = function(e) {
-                 try {
-                     const fileData = new Uint8Array(e.target.result);
-                     const workbook = XLSX.read(fileData, { type: 'array' });
-                     const sheetName = workbook.SheetNames[0];
-                     const sheet = workbook.Sheets[sheetName];
-                     if (!sheet) throw new Error(`First sheet not found.`);
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                console.log("FileReader onload event fired.");
+                try {
+                    const fileData = new Uint8Array(e.target.result);
+                    console.log("File read into ArrayBuffer successfully.");
 
-                     const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
-                     if (!jsonData || jsonData.length < 1) throw new Error('Quantity sheet is empty.');
+                    const workbook = XLSX.read(fileData, { type: 'array' });
+                    console.log("XLSX workbook parsed.");
+                    const sheetName = workbook.SheetNames[0];
+                    if (!sheetName) throw new Error("No sheets found in the workbook.");
+                    console.log(`Using first sheet: "${sheetName}"`);
+                    const sheet = workbook.Sheets[sheetName];
+                    if (!sheet) throw new Error(`Sheet "${sheetName}" could not be accessed.`);
 
-                     const headerRow = jsonData[0];
-                     if (!headerRow) throw new Error('Quantity sheet header row is missing.');
+                    const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
+                    console.log(`Sheet parsed into ${jsonData?.length ?? 0} rows.`);
+                    if (!jsonData || jsonData.length < 1) throw new Error('Quantity sheet is empty.');
 
-                     const normalizedHeaders = headerRow.map(h => String(h).toLowerCase().trim());
-                     const codeIdx = normalizedHeaders.indexOf('code');
-                     const qtyIdx = normalizedHeaders.indexOf('quantity');
+                    const headerRow = jsonData[0];
+                    if (!headerRow) throw new Error('Quantity sheet header row is missing.');
+                    console.log("Header row found:", headerRow);
 
-                     if (codeIdx === -1 || qtyIdx === -1) {
-                         const missing = [];
-                         if (codeIdx === -1) missing.push('code');
-                         if (qtyIdx === -1) missing.push('quantity');
-                         throw new Error(`Quantity file missing header(s): [${missing.join(', ')}].`);
-                     }
+                    const normalizedHeaders = headerRow.map(h => String(h).toLowerCase().trim());
+                    const codeIdx = normalizedHeaders.indexOf('code');
+                    const qtyIdx = normalizedHeaders.indexOf('quantity');
+                    console.log(`Header Indices Found - code: ${codeIdx}, quantity: ${qtyIdx}`);
 
-                     if (jsonData.length < 2) { console.warn("Quantity file contains only headers."); }
+                    if (codeIdx === -1 || qtyIdx === -1) {
+                        const missing = [];
+                        if (codeIdx === -1) missing.push('code');
+                        if (qtyIdx === -1) missing.push('quantity');
+                        throw new Error(`Quantity file missing required header(s): [${missing.join(', ')}]. Found: [${normalizedHeaders.join(', ')}]`);
+                    }
 
-                     quantityInfo.data = jsonData;
-                     quantityInfo.codeIndex = codeIdx;
-                     quantityInfo.quantityIndex = qtyIdx;
+                    if (jsonData.length < 2) {
+                         console.warn("Quantity file contains only headers.");
+                    } else {
+                         console.log(`Found ${jsonData.length - 1} data rows (excluding header).`);
+                    }
 
-                     showMessage(`Quantity file "${file.name}" processed. Headers OK.`, 'success');
-                     enableProcessButton();
+                    quantityInfo.data = jsonData;
+                    quantityInfo.codeIndex = codeIdx;
+                    quantityInfo.quantityIndex = qtyIdx;
+                    console.info("Quantity data and header indices stored successfully.", quantityInfo);
 
-                 } catch (error) {
-                     console.error('Error processing quantity file:', error);
-                     showMessage(`Error processing quantity file: ${error.message}`, 'error');
-                     clearQuantityInternal();
-                 }
-             };
-             reader.onerror = function(error) {
-                 console.error('Error reading file:', error);
-                 showMessage(`Error reading quantity file: ${error.message}`, 'error');
-                 clearQuantityInternal();
-             };
-             reader.readAsArrayBuffer(file);
+                    showMessage(`Quantity file "${file.name}" processed. Headers OK.`, 'success');
+                    enableProcessButton();
+
+                } catch (error) {
+                    console.error('Error during quantity file processing:', error);
+                    showMessage(`Error processing quantity file: ${error.message}`, 'error');
+                    clearQuantityInternal();
+                }
+            };
+            reader.onerror = function(error) {
+                console.error('FileReader error:', error);
+                showMessage(`Error reading quantity file: ${error.message}`, 'error');
+                clearQuantityInternal();
+            };
+            reader.readAsArrayBuffer(file);
         }
 
-        function clearQuantityInternal() {
-             // (Keep the existing clearQuantityInternal function)
+         function clearQuantityInternal() {
             document.getElementById('quantityFile').value = '';
             quantityInfo = { data: null, codeIndex: -1, quantityIndex: -1 };
             document.getElementById('uploadQuantityButton').textContent = 'Choose Quantity File';
             enableProcessButton();
+            console.log("Quantity data cleared internally.");
          }
 
         function clearQuantity() {
-             // (Keep the existing clearQuantity function)
             clearQuantityInternal();
             showMessage('Quantity data cleared.', 'success');
+            console.log("Quantity clear button clicked.");
         }
 
         async function processDataAndDownload() {
-            // (Keep most of this function, just change how gasUrl is accessed)
+            console.log("processDataAndDownload triggered.");
+            const processButton = document.getElementById('processDownloadButton');
+            processButton.disabled = true;
+
             const locationFromValue = document.getElementById('locationFrom').value;
             const locationToValue = document.getElementById('locationTo').value;
-            // *** Use the constant instead of reading from input ***
-            const gasUrl = GAS_URL;
-            const processButton = document.getElementById('processDownloadButton');
+            const gasUrl = GAS_URL; // Use the constant
 
-            // 1. Validations
-            if (!locationFromValue || !locationToValue) { showMessage('Please select both "Location From" and "Location To".'); return; }
-            // *** Add validation for the GAS_URL constant ***
-            if (!gasUrl || gasUrl === "PASTE_YOUR_DEPLOYED_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE") {
-                 showMessage('ERROR: Google Apps Script URL is not set in the HTML source code.', 'error');
+            // --- 1. Input Validations ---
+            console.log("Step 1: Validating inputs...");
+            if (!locationFromValue || !locationToValue) {
+                showMessage('Please select both "Location From" and "Location To".'); return;
+            }
+            console.log(`Locations selected: From - ${locationFromValue}, To - ${locationToValue}`);
+
+            // Check if URL looks valid (it's set, not the placeholder)
+             if (!gasUrl || gasUrl === "PASTE_YOUR_DEPLOYED_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE") {
+                 showMessage('CRITICAL ERROR: Google Apps Script URL is not configured correctly!', 'error');
+                 console.error("GAS_URL constant is invalid or placeholder!");
+                 // Keep button disabled if needed or re-enable after short delay
+                 setTimeout(() => enableProcessButton(), 500); // Allow user to see error
                  return;
              }
+             console.log("GAS URL constant appears valid.");
+
             if (!quantityInfo.data || quantityInfo.codeIndex === -1 || quantityInfo.quantityIndex === -1) {
                 showMessage('Please upload a valid quantity data file.'); return;
             }
-
+            console.log("Quantity data appears valid.");
+            console.log("Input validation successful.");
             showMessage('Processing... Step 1: Extracting codes.', 'loading');
-            processButton.disabled = true;
+
 
             try {
-                // --- Extract unique codes ---
-                // (Code extraction logic remains the same)
-                 const uniqueCodes = new Set();
-                 for (let i = 1; i < quantityInfo.data.length; i++) {
-                     const code = String(quantityInfo.data[i][quantityInfo.codeIndex] ?? '').trim();
-                     if (code) uniqueCodes.add(code);
-                 }
-                 const codesToLookup = Array.from(uniqueCodes);
-                 if (codesToLookup.length === 0) {
-                      showMessage('No valid codes found in the quantity file.', 'error');
-                      enableProcessButton(); return;
-                 }
+                // --- 2. Extract Unique Codes ---
+                console.log("Step 2: Extracting unique codes from quantity data...");
+                const uniqueCodes = new Set();
+                for (let i = 1; i < quantityInfo.data.length; i++) {
+                    const code = String(quantityInfo.data[i][quantityInfo.codeIndex] ?? '').trim();
+                    if (code) uniqueCodes.add(code);
+                }
+                const codesToLookup = Array.from(uniqueCodes);
+                console.info(`Found ${codesToLookup.length} unique codes to look up.`);
 
-                // --- Call Google Apps Script ---
+                if (codesToLookup.length === 0) {
+                     showMessage('No valid codes found in the quantity file data rows.', 'error');
+                     enableProcessButton();
+                     return;
+                }
+
+                // --- 3. Call Google Apps Script ---
+                console.log(`Step 3: Calling Google Apps Script at ${gasUrl.substring(0, 50)}... with ${codesToLookup.length} codes.`);
                 showMessage(`Processing... Step 2: Fetching data for ${codesToLookup.length} codes...`, 'loading');
                 const requestPayload = { codes: codesToLookup };
 
-                // *** Use the gasUrl constant here ***
                 const response = await fetch(gasUrl, {
                     method: 'POST', mode: 'cors', cache: 'no-cache',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify(requestPayload), redirect: 'follow'
                 });
+                console.log(`GAS Response Status: ${response.status}`);
 
-                // (Rest of the fetch handling, data processing, Excel generation remains the same...)
                 if (!response.ok) {
                     let errorText = `GAS request failed: ${response.status}`;
-                    try { errorText += ` - ${await response.text()}`; } catch (e) {}
+                    try {
+                        const text = await response.text();
+                        console.error("GAS Error Response Text:", text);
+                        errorText += ` - ${text}`;
+                    } catch (e) { console.warn("Could not read GAS error response text.", e)}
                     throw new Error(errorText.substring(0, 300));
                 }
-                const gasResult = await response.json();
-                if (!gasResult || typeof gasResult !== 'object') throw new Error("Invalid JSON response from GAS.");
-                if (gasResult.errors && gasResult.errors.length > 0) throw new Error(`Error from GAS: ${gasResult.errors.join(', ')}`);
-                if (!gasResult.data) throw new Error("GAS response missing 'data'.");
+                console.log("GAS fetch successful (Network level).");
 
+                const gasResult = await response.json();
+                console.log("GAS response parsed as JSON.");
+
+                if (!gasResult || typeof gasResult !== 'object') throw new Error("Invalid JSON structure received from GAS.");
+                if (gasResult.errors && gasResult.errors.length > 0) {
+                    console.error("Errors reported by GAS script:", gasResult.errors);
+                    throw new Error(`Error from GAS: ${gasResult.errors.join(', ')}`);
+                }
+                if (!gasResult.data) throw new Error("GAS response missing expected 'data' field.");
+                console.info("GAS script executed successfully, received data object.");
+
+
+                // --- 4. Create Lookup Map ---
+                console.log("Step 4: Creating lookup map from GAS data...");
                 showMessage(`Processing... Step 3: Preparing results...`, 'loading');
                 const databaseMap = new Map(Object.entries(gasResult.data));
+                console.log(`Created map with ${databaseMap.size} entries from GAS response.`);
 
+
+                // --- 5. Process Quantity Data Against Map ---
+                console.log("Step 5: Merging quantity data with GAS results...");
                 const results = [];
                 const unmatched = [];
                 for (let i = 1; i < quantityInfo.data.length; i++) {
@@ -266,13 +322,19 @@
                         unmatched.push({ Code: code, Quantity: quantity ?? 0 });
                     }
                 }
+                console.info(`Processing complete. Matched: ${results.length}, Unmatched: ${unmatched.length}`);
 
+
+                // --- 6. Create Excel Workbook ---
+                console.log("Step 6: Generating Excel file...");
                 const wb = XLSX.utils.book_new();
+
                 const resultsHeader = ["Code", "Barcode", "Name", "Quantity"];
                 const resultsSheetData = [resultsHeader, ...results.map(item => [item.Code, item.Barcode, item.Name, item.Quantity])];
                 const resultsSheet = XLSX.utils.aoa_to_sheet(resultsSheetData);
                 resultsSheet['!cols'] = [{ wch: 15 }, { wch: 20 }, { wch: 50 }, { wch: 10 }];
                 XLSX.utils.book_append_sheet(wb, resultsSheet, "Results");
+                console.log(`Added "Results" sheet with ${results.length} data rows.`);
 
                 if (unmatched.length > 0) {
                      const unmatchedHeader = ["Code", "Quantity"];
@@ -280,34 +342,67 @@
                     const unmatchedSheet = XLSX.utils.aoa_to_sheet(unmatchedSheetData);
                      unmatchedSheet['!cols'] = [{ wch: 15 }, { wch: 10 }];
                     XLSX.utils.book_append_sheet(wb, unmatchedSheet, "Unmatched");
+                    console.log(`Added "Unmatched" sheet with ${unmatched.length} data rows.`);
+                } else {
+                     console.log("No unmatched items, skipping 'Unmatched' sheet.");
                 }
 
+                // --- 7. Generate Filename and Download ---
+                console.log("Step 7: Triggering download...");
                 const currentDate = new Date();
                 const formattedDate = `${currentDate.getFullYear()}-${('0' + (currentDate.getMonth() + 1)).slice(-2)}-${('0' + currentDate.getDate()).slice(-2)}`;
                 const filename = `StockTransfer من ${locationFromValue} الي ${locationToValue} ${formattedDate}.xlsx`;
                 XLSX.writeFile(wb, filename);
+                console.log(`Excel file "${filename}" download initiated.`);
 
                 clearQuantityInternal();
                 showMessage(`Processed ${results.length} matched, ${unmatched.length} unmatched. Downloaded!`, 'success');
+                console.info("processDataAndDownload finished successfully.");
 
             } catch (error) {
-                console.error('Error during processing:', error);
+                console.error('Error during processDataAndDownload:', error);
                 showMessage(`Error: ${error.message}`, 'error');
             } finally {
                 enableProcessButton();
+                console.log("processDataAndDownload finished (try/catch/finally complete).");
             }
         }
 
         // --- Initialization ---
         document.addEventListener('DOMContentLoaded', function() {
-            $('.location-select').select2({ placeholder: "Select a Location", allowClear: true, containerCssClass: 'location-select-s2' });
+            console.log("DOM fully loaded and parsed.");
 
-            document.getElementById('uploadQuantityButton').addEventListener('click', () => document.getElementById('quantityFile').click());
+            console.log("Initializing Select2 dropdowns...");
+            try {
+                // Corrected Select2 initialization (no containerCssClass)
+                $('.location-select').select2({
+                    placeholder: "Select a Location",
+                    allowClear: true
+                });
+                console.log("Select2 initialized successfully.");
+            } catch (error) {
+                console.error("Error initializing Select2:", error);
+                showMessage("Error setting up dropdowns. Please refresh.", "error");
+            }
+
+            console.log("Attaching event listeners...");
+            document.getElementById('uploadQuantityButton').addEventListener('click', () => {
+                console.log("Upload Quantity Button clicked, triggering file input.");
+                document.getElementById('quantityFile').click();
+            });
             document.getElementById('quantityFile').addEventListener('change', handleQuantityUpload);
             document.getElementById('clearQuantity').addEventListener('click', clearQuantity);
             document.getElementById('processDownloadButton').addEventListener('click', processDataAndDownload);
-            // *** REMOVED event listener for gasUrl input ***
-            // document.getElementById('gasUrl').addEventListener('input', enableProcessButton);
+            console.log("Event listeners attached.");
+
+            // Final check for GAS URL configuration on load
+            if (!GAS_URL || GAS_URL === "PASTE_YOUR_DEPLOYED_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE") {
+                console.error("Configuration Error: GAS_URL constant is not set or is still the placeholder!");
+                showMessage("Configuration Error: App requires setup (GAS URL missing/invalid).", "error");
+            } else {
+                 console.log("GAS_URL constant is set:", GAS_URL.substring(0,50)+"..."); // Log start of URL
+            }
+            enableProcessButton(); // Initial check for button state
         });
 
     </script>
