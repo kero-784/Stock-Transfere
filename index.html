@@ -4,82 +4,156 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kero Assistance - Stock Transfer (Firebase)</title> <!-- Updated title -->
+    <title>Kero Assistance - Stock Transfer Management</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
-    <!-- Add other SDKs like Auth if needed later -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
     <style>
-        /* --- Basic Resets & Body --- */
-        body, html {
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff;
             margin: 0;
             padding: 0;
-            font-family: 'Roboto', 'Arial', sans-serif;
-            background-color: #f4f6f8;
-            color: #333;
-            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            color: #424242;
         }
-        .container { max-width: 1000px; margin: 25px auto; padding: 25px; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); }
-        /* Headings */
-        h1 { text-align: center; color: #1e88e5; margin-bottom: 25px; font-weight: 500; }
-        #kero-assistance { font-size: 1.8em; }
-        #stock-transfer { font-size: 1.3em; font-style: italic; color: #555; }
-        h2 { font-size: 1.25rem; color: #3f51b5; margin-top: 0; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 1px solid #e0e0e0; font-weight: 500; }
-        /* Sections */
-        .section { background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        /* Inputs & Selects */
-        input[type="file"], input[type="text"], select { padding: 10px 12px; margin: 5px 0 10px 0; border: 1px solid #ccc; border-radius: 4px; font-size: 0.95rem; box-sizing: border-box; width: 100%; transition: border-color 0.2s ease; }
-        input:focus, select:focus { outline: none; border-color: #3f51b5; box-shadow: 0 0 0 1px #3f51b5; }
-        input[type="file"] { border: 1px dashed #ccc; background-color: #fafafa; padding: 15px; cursor: pointer; }
-        .location-container { display: flex; gap: 15px; margin-bottom: 15px; }
-        .location-container > div { width: 50%; } /* Each takes half */
-        /* Buttons */
-        button { padding: 10px 16px; margin: 5px; cursor: pointer; border: none; border-radius: 4px; color: white; background-color: #3F51B5; font-size: 0.9rem; font-weight: 500; text-transform: uppercase; box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px 0 rgba(0,0,0,0.2); transition: box-shadow 0.3s ease, background-color 0.3s ease; display: inline-flex; align-items: center; justify-content: center; gap: 8px; vertical-align: middle; }
-        button:hover { box-shadow: 0 4px 5px 0 rgba(0,0,0,0.2), 0 1px 10px 0 rgba(0,0,0,0.12), 0 2px 4px -1px rgba(0,0,0,0.2); background-color: #303F9F; }
-        button:disabled { background-color: #bdbdbd; box-shadow: none; cursor: not-allowed; color: #757575; }
-        button:disabled .material-icons { color: #757575; }
-        .secondary-button { background-color: #f5f5f5; color: #555; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-        .secondary-button:hover { background-color: #eeeeee; color: #333; box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
-        #processDownloadButton { background-color: #4CAF50; font-size: 1rem; padding: 12px 24px; }
-        #processDownloadButton:hover { background-color: #388E3C; }
-        .danger-button { background-color: #f44336; }
-        .danger-button:hover { background-color: #d32f2f; }
-        /* Messages & Status */
-        #message { margin-top: 20px; padding: 12px; border-radius: 4px; font-weight: 500; text-align: left; display: none; border: 1px solid transparent; }
-        #message.visible { display: block; }
-        #message.success { background-color: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }
-        #message.error { background-color: #ffebee; color: #c62828; border-color: #ef9a9a; }
-        #message.info { background-color: #e3f2fd; color: #1565c0; border-color: #90caf9; }
-        #dbStatus { font-size: 0.9em; color: #666; margin-top: 10px; padding: 8px; border-radius: 4px; background-color: #f5f5f5; text-align: left; }
-        #dbStatus.connected { color: #2e7d32; background-color: #e8f5e9; border: 1px solid #a5d6a7; }
-        #dbStatus.disconnected { color: #c62828; background-color: #ffebee; border: 1px solid #ef9a9a; }
-        /* Table Styles */
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; background-color: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-radius: 4px; overflow: hidden; border: 1px solid #e0e0e0; }
-        th, td { padding: 10px 12px; text-align: left; font-size: 0.85rem; border-bottom: 1px solid #e0e0e0; vertical-align: middle; }
-        th { background-color: #f5f5f5; color: #757575; font-weight: 500; text-transform: uppercase; letter-spacing: 0.03em; }
-        tr:last-child td { border-bottom: none; }
-        tr:hover { background-color: #f9f9f9; }
-        td button { padding: 4px 8px; font-size: 0.8rem; margin: 0 2px; }
-        /* Other */
-        .version { position: fixed; bottom: 10px; right: 10px; font-size: 0.8em; color: #aaa; background-color: rgba(255, 255, 255, 0.8); padding: 2px 5px; border-radius: 3px; }
-        .material-icons { vertical-align: middle; font-size: 1.1em; }
-        hr { border: none; border-top: 1px solid #eee; margin: 20px 0; }
-        label { display: block; text-align: left; margin-bottom: 5px; font-size: 0.9em; color: #555; font-weight: 500; }
-        /* Responsive */
-        @media (max-width: 768px) { .container { width: 95%; padding: 20px; margin: 15px auto; } .location-container { flex-direction: column; gap: 10px; } .location-container > div { width: 100%; } h1 { font-size: 1.5em; } h2 { font-size: 1.1em; } button { padding: 9px 14px; font-size: 0.85rem; } #processDownloadButton { padding: 10px 20px; font-size: 0.95rem; } th, td { font-size: 0.8rem; padding: 8px 10px;} }
-        @media (max-width: 480px) { button { width: 100%; margin: 5px 0; } .section { padding: 15px; } h1 { font-size: 1.3em; } #kero-assistance { font-size: 1.5em; } #stock-transfer { font-size: 1.1em; } th, td { font-size: 0.75rem; padding: 6px 8px;} .location-container { gap: 5px; } input[type="file"] { padding: 10px; } }
+
+        .container {
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 85%;
+            max-width: 900px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        h1 {
+            color: #1e88e5;
+            margin-bottom: 20px;
+        }
+
+        #kero-assistance {
+            font-size: 2em;
+        }
+
+        #stock-transfer {
+            font-size: 1.5em;
+            font-style: italic;
+        }
+
+        .section {
+            margin-bottom: 25px;
+            padding: 20px;
+            border: 1px solid #bbdefb;
+            border-radius: 8px;
+            background-color: #e3f2fd;
+        }
+
+        .location-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .location-container select {
+            width: 45%;
+            padding: 10px;
+            border: 1px solid #bbdefb;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+
+        input[type="file"],
+        input[type="text"],
+        input[type="password"] {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #bbdefb;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #009688;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #00796b;
+        }
+
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        #processDownloadButton {
+            font-size: 18px;
+            padding: 16px 32px;
+            background-color: #4caf50;
+        }
+
+        #processDownloadButton:hover:not(:disabled) {
+            background-color: #388e3c;
+        }
+
+
+        #message {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #d32f2f;
+        }
+
+        #message.success {
+            color: #2e7d32;
+        }
+        #message.info {
+            color: #1976d2;
+        }
+
+        .select2-container {
+            width: 100% !important;
+        }
+
+        .select2-selection {
+            border: 1px solid #bbdefb !important;
+            border-radius: 5px !important;
+            padding: 6px 12px !important;
+            height: auto !important;
+        }
+         .version {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            font-size: 0.8em;
+            color: #777;
+        }
     </style>
+
 </head>
 
 <body>
-    <div class="version">v 3.0 - Firebase</div>
+
+    <div class="version">v 1.2</div>
+
 
     <div id="appContent" class="container">
         <h1>
@@ -88,660 +162,302 @@
             <span id="stock-transfer">Stock Transfer Management</span>
         </h1>
 
-        <div class="section">
-            <h2>Database Status</h2>
-            <!-- Database is now in Firebase, status shows connection -->
-             <div id="dbStatus" class="disconnected">Database Status: Connecting...</div>
-             <!-- Optional: Add a button to explicitly re-check connection? -->
-             <!-- <button id="checkDbConnection" class="secondary-button"><span class="material-icons">sync</span> Check Connection</button> -->
-        </div>
+        <!-- Database Upload Section Removed -->
 
         <div class="section">
-            <h2>Initiate New Transfer</h2>
+            <h2>Quantity Upload</h2>
 
             <div class="location-container">
-              <div>
-                  <label for="locationFrom">From Location:</label>
-                  <select id="locationFrom" class="location-select">
-                      <option value="">Select...</option>
-                      <option value="جاردنز 101">جاردنز 101</option>
-                      <option value="تلال السخنة 102">تلال السخنة 102</option>
-                      <option value="ستيلا 103">ستيلا 103</option>
-                      <option value="الدبلو 104">الدبلو 104</option>
-                      <option value="تلال الساحل 105">تلال الساحل 105</option>
-                      <option value="سوان لك 106">سوان لك 106</option>
-                      <option value="كاسكادا 107">كاسكادا 107</option>
-                      <option value="لافيستا باي 108">لافيستا باي 108</option>
-                      <option value="راس الحكمة 109">راس الحكمة 109</option>
-                      <option value="لازوردي 110">لازوردي 110</option>
-                      <option value="النادي 111">النادي 111</option>
-                      <option value="زايد 112">زايد 112</option>
-                      <option value="القطامية 115">القطامية 115</option>
-                      <option value="مخزن بلبيس 201">مخزن بلبيس 201</option>
-                      <option value="مخزن الساحل 202">مخزن الساحل 202</option>
-                  </select>
-              </div>
-              <div>
-                  <label for="locationTo">To Location:</label>
-                  <select id="locationTo" class="location-select">
-                      <option value="">Select...</option>
-                        <option value="جاردنز 101">جاردنز 101</option>
-                        <option value="تلال السخنة 102">تلال السخنة 102</option>
-                        <option value="ستيلا 103">ستيلا 103</option>
-                        <option value="الدبلو 104">الدبلو 104</option>
-                        <option value="تلال الساحل 105">تلال الساحل 105</option>
-                        <option value="سوان لك 106">سوان لك 106</option>
-                        <option value="كاسكادا 107">كاسكادا 107</option>
-                        <option value="لافيستا باي 108">لافيستا باي 108</option>
-                        <option value="راس الحكمة 109">راس الحكمة 109</option>
-                        <option value="لازوردي 110">لازوردي 110</option>
-                        <option value="النادي 111">النادي 111</option>
-                        <option value="زايد 112">زايد 112</option>
-                        <option value="القطامية 115">القطامية 115</option>
-                        <option value="مخزن بلبيس 201">مخزن بلبيس 201</option>
-                        <option value="مخزن الساحل 202">مخزن الساحل 202</option>
-                  </select>
-              </div>
+              <select id="locationFrom" class="location-select">
+                  <option value="">Select Location From</option>
+                  <option value="جاردنز 101">جاردنز 101</option>
+                  <option value="تلال السخنة 102">تلال السخنة 102</option>
+                  <option value="ستيلا 103">ستيلا 103</option>
+                  <option value="الدبلو 104">الدبلو 104</option>
+                  <option value="تلال الساحل 105">تلال الساحل 105</option>
+                  <option value="سوان لك 106">سوان لك 106</option>
+                  <option value="كاسكادا 107">كاسكادا 107</option>
+                  <option value="لافيستا باي 108">لافيستا باي 108</option>
+                  <option value="راس الحكمة 109">راس الحكمة 109</option>
+                  <option value="لازوردي 110">لازوردي 110</option>
+                  <option value="النادي 111">النادي 111</option>
+                  <option value="زايد 112">زايد 112</option>
+                  <option value="القطامية 115">القطامية 115</option>
+                  <option value="مخزن بلبيس 201">مخزن بلبيس 201</option>
+                  <option value="مخزن الساحل 202">مخزن الساحل 202</option>
+              </select>
+
+              <select id="locationTo" class="location-select">
+                  <option value="">Select Location To</option>
+                  <option value="جاردنز 101">جاردنز 101</option>
+                  <option value="تلال السخنة 102">تلال السخنة 102</option>
+                  <option value="ستيلا 103">ستيلا 103</option>
+                  <option value="الدبلو 104">الدبلو 104</option>
+                  <option value="تلال الساحل 105">تلال الساحل 105</option>
+                  <option value="سوان لك 106">سوان لك 106</option>
+                  <option value="كاسكادا 107">كاسكادا 107</option>
+                  <option value="لافيستا باي 108">لافيستا باي 108</option>
+                  <option value="راس الحكمة 109">راس الحكمة 109</option>
+                  <option value="لازوردي 110">لازوردي 110</option>
+                  <option value="النادي 111">النادي 111</option>
+                  <option value="زايد 112">زايد 112</option>
+                  <option value="القطامية 115">القطامية 115</option>
+                  <option value="مخزن بلبيس 201">مخزن بلبيس 201</option>
+                  <option value="مخزن الساحل 202">مخزن الساحل 202</option>
+              </select>
             </div>
 
-            <label for="quantityFile">Upload Quantity File for this Transfer (XLSX or CSV):</label>
-            <input type="file" id="quantityFile" accept=".xlsx,.csv">
-            <button id="clearQuantityButton" class="secondary-button"><span class="material-icons">clear</span>Clear Quantity File</button>
+            <input type="file" id="quantityFile" accept=".xlsx" style="display: none;">
+            <button id="uploadQuantityButton">Upload Quantity</button>
+            <button id="clearQuantity">Clear Quantity</button>
         </div>
 
-        <button id="processDownloadButton" disabled><span class="material-icons">play_arrow</span>Process Transfer & Download Results</button>
+        <button id="processDownloadButton" disabled>Process Data and Download Results</button>
 
-        <div id="message"></div> <!-- For user feedback -->
-
-        <div class="section">
-            <h2>Transfer Log</h2>
-             <button id="clearLogButton" class="secondary-button danger-button" disabled><span class="material-icons">history_toggle_off</span>Clear Log</button>
-             <button id="exportLogButton" class="secondary-button" disabled><span class="material-icons">download</span>Export Full Log</button>
-            <div style="max-height: 300px; overflow-y: auto; margin-top: 10px;"> <!-- Scrollable log -->
-                <table id="transferLogTable">
-                    <thead>
-                        <tr>
-                            <th>Timestamp</th>
-                            <th>From</th>
-                            <th>To</th>
-                            <th>Matched</th>
-                            <th>Unmatched</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Log entries will be added here -->
-                         <tr><td colspan="6" style="text-align:center; color: #888;">Loading log...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
+        <div id="message">Fetching product database...</div>
     </div>
 
     <script>
-        // --- PASTE YOUR FIREBASE CONFIG OBJECT HERE ---
-        const firebaseConfig = {
-           apiKey: "AIzaSyAODZRQHM5ujVUVC1HG4LJ9THQo_lGIfQ4",
-  authDomain: "transfere-93ba4.firebaseapp.com",
-  projectId: "transfere-93ba4",
-  storageBucket: "transfere-93ba4.firebasestorage.app",
-  messagingSenderId: "669028437955",
-  appId: "1:669028437955:web:3c8aae159ac0932fb67776",
-  measurementId: "G-4JFR3KBY72"
-        };
+        let databaseData = null; // In-memory database from Google Sheet
+        let quantityData = null;
+        const googleSheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQNrRFFRPe_jrOrDZM58gRqxfsA0deD60_q2jkA7XJRRfJQ7IiBdIqNDN7JdMawjw/pub?output=csv';
 
-        // --- Global Variables ---
-        let db; // Firestore database instance
-        let quantityData = null; // Holds the currently loaded quantity file data. Memory only.
-        // transferLog is no longer a global JS variable, it's fetched from Firestore
-        const ITEMS_COLLECTION = 'items'; // Name of your Firestore collection for items
-        const LOG_COLLECTION = 'transferLogs'; // Name of your Firestore collection for logs
-        const FIRESTORE_BATCH_SIZE = 30; // Max elements for 'in' query
+        document.addEventListener('DOMContentLoaded', function() {
+            const processButton = document.getElementById('processDownloadButton');
 
-        // Required headers (used for validation)
-        const REQUIRED_QTY_HEADERS = ['code', 'quantity']; // Case-insensitive check
+            fetchProductDatabase();
 
-        // --- DOM Elements ---
-        const dbStatusDiv = document.getElementById('dbStatus');
-        const locationFromSelect = document.getElementById('locationFrom');
-        const locationToSelect = document.getElementById('locationTo');
-        const quantityFileInput = document.getElementById('quantityFile');
-        const clearQuantityButton = document.getElementById('clearQuantityButton');
-        const processDownloadButton = document.getElementById('processDownloadButton');
-        const messageDiv = document.getElementById('message');
-        const transferLogTableBody = document.getElementById('transferLogTable').querySelector('tbody');
-        const clearLogButton = document.getElementById('clearLogButton');
-        const exportLogButton = document.getElementById('exportLogButton');
+            $('#locationFrom, #locationTo').select2(); // Initialize select2
 
-        // --- Initialization ---
-        document.addEventListener('DOMContentLoaded', initializeApp);
+            document.getElementById('uploadQuantityButton').addEventListener('click', function() {
+                document.getElementById('quantityFile').click();
+            });
 
-        function initializeApp() {
-            showMessage('Initializing application and connecting to database...', 'info');
+            document.getElementById('quantityFile').addEventListener('change', handleQuantityUpload);
+            document.getElementById('clearQuantity').addEventListener('click', clearQuantity);
+            processButton.addEventListener('click', processDataAndDownload);
+        });
+
+        async function fetchProductDatabase() {
+            const processButton = document.getElementById('processDownloadButton');
+            showMessage('Fetching product database from Google Sheet...', 'info');
+            processButton.disabled = true;
+
             try {
-                // Initialize Firebase
-                firebase.initializeApp(firebaseConfig);
-                db = firebase.firestore(); // Use compat API
-                console.log("Firebase Initialized.");
-
-                // Check initial connection (optional, Firestore handles offline persistence)
-                // You might rely on the first query succeeding or failing
-                updateDbStatus(true, "Connected (initial check)."); // Assume connected initially
-
-                // Load initial log data from Firestore
-                loadAndRenderTransferLog();
-
+                const response = await fetch(googleSheetURL);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const csvText = await response.text();
+                parseCSVDatabase(csvText);
+                showMessage('Product database loaded successfully from Google Sheet!', true);
+                processButton.disabled = false; // Enable button after successful load
             } catch (error) {
-                console.error("Firebase initialization failed:", error);
-                showMessage(`FATAL: Firebase initialization failed: ${error.message}`, 'error');
-                updateDbStatus(false, `Initialization failed: ${error.message}`);
-                // Disable core functionality if Firebase fails
-                processDownloadButton.disabled = true;
-                clearLogButton.disabled = true;
-                exportLogButton.disabled = true;
+                showMessage(`Error fetching product database: ${error.message}. Please check the Google Sheet link and your internet connection.`);
+                console.error("Fetch error:", error);
+                // Keep button disabled if fetch fails
             }
-
-             // Setup event listeners after initialization attempt
-             setupEventListeners();
-             checkProcessButtonState(); // Initial button state check
         }
 
-        function setupEventListeners() {
-             quantityFileInput.addEventListener('change', handleQuantityUpload);
-             clearQuantityButton.addEventListener('click', clearQuantity);
-             processDownloadButton.addEventListener('click', processDataAndDownload);
-             clearLogButton.addEventListener('click', clearTransferLog);
-             exportLogButton.addEventListener('click', exportTransferLog);
-             // Remove listeners related to DB upload/fetch/clear
+        function parseCSVDatabase(csvText) {
+            const rows = csvText.trim().split('\n');
+            databaseData = rows.map(row => {
+                // Basic CSV parsing, handles simple cases.
+                // For more complex CSVs (e.g., with quoted commas), a more robust parser would be needed.
+                return row.split(',').map(cell => cell.trim());
+            });
+
+            // Basic validation: check if headers are present and as expected (case-insensitive)
+            if (!databaseData || databaseData.length === 0) {
+                throw new Error("CSV data is empty or invalid.");
+            }
+            const headers = databaseData[0].map(h => h.toLowerCase());
+            const requiredDbHeaders = ['code', 'barcode', 'name'];
+            const missingDbHeaders = requiredDbHeaders.filter(header => !headers.includes(header));
+
+            if (missingDbHeaders.length > 0) {
+                 throw new Error(`Missing required headers in Google Sheet: ${missingDbHeaders.join(', ')}. Expected: code, barcode, name.`);
+            }
+            // console.log("Parsed Database Data:", databaseData); // For debugging
         }
 
-        function updateDbStatus(isConnected, message) {
-            dbStatusDiv.textContent = `Database Status: ${isConnected ? 'Connected' : 'Error/Disconnected'} - ${message}`;
-            dbStatusDiv.className = isConnected ? 'connected' : 'disconnected'; // Add class for styling
-        }
 
-        // --- Quantity Handling (Loads into Memory Only) ---
-        // (handleQuantityUpload and clearQuantity remain mostly the same as v2.1)
         function handleQuantityUpload(event) {
-            const file = event.target.files[0];
-            if (!file) {
-                quantityData = null;
-                 checkProcessButtonState();
-                return;
-            }
+            handleFileUpload(event, 'quantityData', 'Quantity', ['code', 'quantity']);
+        }
 
-            showMessage('Reading quantity file...', 'info');
+        function handleFileUpload(event, dataVariableKey, sheetNameFriendly, requiredHeaders) {
+            const file = event.target.files[0];
+            if (!file) return;
+
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    const fileType = file.name.split('.').pop().toLowerCase();
-                    let sheetData;
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
 
-                    if (fileType === 'xlsx') {
-                        const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, { type: 'array' });
-                        const sheetName = workbook.SheetNames[0];
-                        const worksheet = workbook.Sheets[sheetName];
-                        if (!worksheet) throw new Error("Sheet not found in quantity file.");
-                        sheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
-                    } else if (fileType === 'csv') {
-                         const csvText = e.target.result;
-                         const lines = csvText.trim().split(/\r?\n/);
-                         sheetData = lines.map(line => line.split(',').map(cell => cell.trim()));
-                    } else {
-                        throw new Error("Unsupported quantity file type. Please upload XLSX or CSV.");
+                    if (!sheet) {
+                        throw new Error(`Sheet not found in the uploaded file.`);
                     }
 
-                     if (!sheetData || sheetData.length < 1) throw new Error("Quantity file is empty or invalid.");
+                    const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
-                     const headers = sheetData[0].map(h => String(h).trim().toLowerCase());
-
-                     const missingHeaders = REQUIRED_QTY_HEADERS.filter(reqH => !headers.includes(reqH));
-                     if (missingHeaders.length > 0) {
-                        throw new Error(`Missing required quantity headers: ${missingHeaders.join(', ')}`);
-                     }
-
-                     quantityData = [headers]; // Start with normalized headers
-                     for(let i = 1; i < sheetData.length; i++) {
-                         if (sheetData[i].some(cell => cell !== null && String(cell).trim() !== '')) {
-                             quantityData.push(sheetData[i]);
-                         }
-                     }
-
-                    if (quantityData.length <= 1) {
-                        throw new Error("No valid data rows found in the quantity file.");
+                    if (jsonData.length === 0) {
+                         throw new Error(`The ${sheetNameFriendly} sheet is empty.`);
                     }
 
-                    showMessage(`Quantity file "${file.name}" loaded (${quantityData.length - 1} items). Ready to process.`, 'success');
-                     checkProcessButtonState();
+                    const headers = jsonData[0].map(header => String(header).toLowerCase().trim());
+                    const missingHeaders = requiredHeaders.filter(header => !headers.includes(header));
+
+                    if (missingHeaders.length > 0) {
+                        throw new Error(`Missing required headers: ${missingHeaders.join(', ')} in "${sheetNameFriendly}" sheet.`);
+                    }
+
+                    if (dataVariableKey === 'quantityData') {
+                        quantityData = jsonData;
+                    }
+                    showMessage(`${sheetNameFriendly} file uploaded successfully!`, true);
 
                 } catch (error) {
-                    console.error("Error processing quantity file:", error);
-                    showMessage(`Error processing quantity file: ${error.message}`, 'error');
-                    quantityData = null;
-                    quantityFileInput.value = '';
-                    checkProcessButtonState();
+                    showMessage(`Error uploading ${sheetNameFriendly} file: ${error.message}`);
+                     if (dataVariableKey === 'quantityData') { quantityData = null; }
                 }
             };
-             reader.onerror = function(error) {
-                 showMessage(`Error reading quantity file: ${error.message}`, 'error');
-                 quantityData = null;
-                 quantityFileInput.value = '';
-                 checkProcessButtonState();
-             };
-
-              if (file.name.endsWith('.xlsx')) {
-                 reader.readAsArrayBuffer(file);
-              } else {
-                  reader.readAsText(file); // Read CSV as text
-              }
+            reader.onerror = function(error) {
+                showMessage(`Error reading ${sheetNameFriendly} file: ${error.message}`);
+            };
+            reader.readAsArrayBuffer(file);
         }
 
         function clearQuantity() {
+            document.getElementById('quantityFile').value = ''; // Reset file input
             quantityData = null;
-            quantityFileInput.value = '';
-            showMessage('Quantity file selection cleared.', 'info');
-            checkProcessButtonState();
+            showMessage('Quantity data cleared!', true);
         }
 
-        // --- Processing & Downloading (Using Firestore) ---
+        function processDataAndDownload() {
+            const locationFromValue = document.getElementById('locationFrom').value;
+            const locationToValue = document.getElementById('locationTo').value;
 
-         function checkProcessButtonState() {
-             // Enable button only if Firestore is likely connected AND a quantity file is loaded
-             const dbConnected = dbStatusDiv.classList.contains('connected'); // Simple check
-             const qtyLoaded = quantityData && quantityData.length > 1;
-             processDownloadButton.disabled = !(dbConnected && qtyLoaded);
-         }
-
-        // Main processing function
-        async function processDataAndDownload() {
-            const locationFromValue = locationFromSelect.value;
-            const locationToValue = locationToSelect.value;
-
-            // --- Pre-processing Validations ---
-             if (!db) {
-                 showMessage('Database connection error. Please refresh.', 'error');
-                 return;
-             }
-            if (!quantityData || quantityData.length <= 1) {
-                showMessage('Quantity file is not loaded. Please upload it.', 'error');
-                return;
-            }
             if (!locationFromValue || !locationToValue) {
-                showMessage('Please select both "Location From" and "Location To".', 'error');
+                showMessage('Please select both "Location From" and "Location To".');
                 return;
             }
-             if (locationFromValue === locationToValue) {
-                 showMessage('Please select different "Location From" and "Location To".', 'error');
-                 return;
-             }
-
-            showMessage('Processing transfer... Fetching item data from database...', 'info');
-            processDownloadButton.disabled = true; // Disable during processing
+            if (!databaseData || databaseData.length <= 1) { // Check if databaseData has more than just headers
+                showMessage('Product database is not loaded or is empty. Please refresh or check Google Sheet.');
+                return;
+            }
+            if (!quantityData || quantityData.length <= 1) { // Check if quantityData has more than just headers
+                showMessage('Please upload the quantity data first (and ensure it has data).');
+                return;
+            }
 
             try {
-                // 1. Extract unique codes and quantities from quantityData
-                const codeColQty = quantityData[0].indexOf('code');
-                const quantityColQty = quantityData[0].indexOf('quantity');
-                if (codeColQty === -1 || quantityColQty === -1) {
-                     throw new Error("Required columns (code, quantity) not found in quantity file headers after load.");
-                 }
+                const results = [];
+                const unmatched = [];
 
-                const quantityMap = new Map(); // Use Map for easy quantity lookup by code
-                 const uniqueCodes = new Set();
-                 const invalidQuantityEntries = [];
+                // Get header indices from the fetched Google Sheet data (databaseData)
+                const dbHeaders = databaseData[0].map(h => String(h).toLowerCase().trim());
+                const codeColumnDb = dbHeaders.indexOf('code');
+                const barcodeColumnDb = dbHeaders.indexOf('barcode');
+                const nameColumnDb = dbHeaders.indexOf('name');
 
-                 for (let i = 1; i < quantityData.length; i++) {
-                     const row = quantityData[i];
-                     if (row && row.length > Math.max(codeColQty, quantityColQty)) {
-                         const code = String(row[codeColQty]).trim();
-                         let quantity = row[quantityColQty];
-
-                         if (!code || quantity === undefined || quantity === null || String(quantity).trim() === '') {
-                             console.warn(`Skipping Qty row ${i+1}: Missing code or quantity.`);
-                             continue;
-                         }
-
-                         const numQuantity = Number(quantity);
-                         if (isNaN(numQuantity)) {
-                              console.warn(`Skipping Qty row ${i+1}: Quantity "${quantity}" is not a valid number.`);
-                              invalidQuantityEntries.push({ Code: code, Quantity: `INVALID (${quantity})` });
-                              continue;
-                          }
-
-                         if (code) {
-                             uniqueCodes.add(code);
-                             // Store quantity (handle potential duplicate codes in quantity file - sum them?)
-                             // For now, let's just take the last one found for simplicity.
-                             // If summing is needed, the logic is: quantityMap.set(code, (quantityMap.get(code) || 0) + numQuantity);
-                             quantityMap.set(code, numQuantity);
-                         }
-                     } else {
-                          console.warn(`Skipping Qty row ${i+1} due to insufficient columns.`);
-                     }
-                 }
-
-                 const codesToQuery = Array.from(uniqueCodes);
-                 if (codesToQuery.length === 0) {
-                     throw new Error("No valid codes found in the quantity file to process.");
-                 }
-
-                 // 2. Query Firestore for matching items in batches
-                 console.time("FirestoreQuery");
-                 const dbItemsMap = await fetchItemsFromFirestore(codesToQuery);
-                 console.timeEnd("FirestoreQuery");
-
-                 // 3. Process results: Compare quantityMap codes with dbItemsMap
-                 console.time("ProcessResults");
-                 const results = [];
-                 const unmatched = [...invalidQuantityEntries]; // Start unmatched with invalid qty entries
-
-                 for (const [code, quantity] of quantityMap.entries()) {
-                     const dbItemData = dbItemsMap.get(code);
-                     if (dbItemData) {
-                         // Found in DB
-                         results.push({
-                             Code: code,
-                             Barcode: dbItemData.barcode || '', // Use data from Firestore doc
-                             Name: dbItemData.name || '',
-                             Quantity: quantity
-                         });
-                     } else {
-                         // Not found in DB
-                         unmatched.push({ Code: code, Quantity: quantity });
-                     }
-                 }
-                 console.timeEnd("ProcessResults");
-
-
-                // 4. Generate Excel File (Same as before)
-                console.time("GenerateExcel");
-                const wb = XLSX.utils.book_new();
-                // Results Sheet
-                if (results.length > 0) {
-                    const resultsHeader = ["Code", "Barcode", "Name", "Quantity"];
-                    const resultsMappedData = results.map(item => [item.Code, item.Barcode, item.Name, item.Quantity]);
-                    resultsMappedData.unshift(resultsHeader);
-                    const resultsSheet = XLSX.utils.aoa_to_sheet(resultsMappedData, { cellDates: false });
-                    resultsSheet['!cols'] = [{ wch: 15 }, { wch: 20 }, { wch: 50 }, { wch: 10 }];
-                    XLSX.utils.book_append_sheet(wb, resultsSheet, "Results");
-                } else {
-                    const emptySheet = XLSX.utils.aoa_to_sheet([["No matched items found."]]);
-                    XLSX.utils.book_append_sheet(wb, emptySheet, "Results");
+                if (codeColumnDb === -1 || barcodeColumnDb === -1 || nameColumnDb === -1) {
+                    throw new Error('Required columns ("code", "barcode", "name") not found in the product database (Google Sheet).');
                 }
-                // Unmatched Sheet
+
+                // Get header indices from uploaded quantity file
+                const quantityHeaders = quantityData[0].map(h => String(h).toLowerCase().trim());
+                const codeColumnQuantity = quantityHeaders.indexOf('code');
+                const quantityColumnQuantity = quantityHeaders.indexOf('quantity');
+
+                if (codeColumnQuantity === -1 || quantityColumnQuantity === -1) {
+                    throw new Error('Required columns ("code", "quantity") not found in Quantity sheet.');
+                }
+
+                for (let i = 1; i < quantityData.length; i++) { // Start from 1 to skip header row
+                    const quantityRow = quantityData[i];
+                    const codeToFind = String(quantityRow[codeColumnQuantity]).trim();
+                    const quantity = quantityRow[quantityColumnQuantity];
+
+                    if (!codeToFind || quantity === undefined || quantity === null) { // Skip if code or quantity is missing
+                         console.warn(`Skipping row ${i+1} in quantity file due to missing code or quantity.`);
+                         continue;
+                    }
+
+                    let found = false;
+                    for (let j = 1; j < databaseData.length; j++) { // Start from 1 to skip header row
+                        const dbRow = databaseData[j];
+                        // Ensure dbRow[codeColumnDb] is not undefined before calling toString() and trim()
+                        if (dbRow[codeColumnDb] !== undefined && String(dbRow[codeColumnDb]).trim() === codeToFind) {
+                            results.push({
+                                Code: codeToFind,
+                                Barcode: dbRow[barcodeColumnDb] !== undefined ? dbRow[barcodeColumnDb] : '',
+                                Name: dbRow[nameColumnDb] !== undefined ? dbRow[nameColumnDb] : '',
+                                Quantity: quantity
+                            });
+                            found = true;
+                            break; // Found the item, no need to search further in databaseData
+                        }
+                    }
+
+                    if (!found) {
+                        unmatched.push({
+                            Code: codeToFind,
+                            Quantity: quantity
+                        });
+                    }
+                }
+
+                const wb = XLSX.utils.book_new();
+
+                const resultsHeader = ["Code", "Barcode", "Name", "Quantity"];
+                const resultsSheetData = results.map(item => [item.Code, item.Barcode, item.Name, item.Quantity]);
+                resultsSheetData.unshift(resultsHeader); // Add header row
+                const resultsSheet = XLSX.utils.aoa_to_sheet(resultsSheetData);
+
+                const wscols = [{ wch: 15 }, { wch: 20 }, { wch: 50 }, { wch: 10 }];
+                resultsSheet['!cols'] = wscols;
+                XLSX.utils.book_append_sheet(wb, resultsSheet, "Results");
+
                 if (unmatched.length > 0) {
                     const unmatchedHeader = ["Code", "Quantity"];
-                    const unmatchedMappedData = unmatched.map(item => [item.Code, item.Quantity]);
-                    unmatchedMappedData.unshift(unmatchedHeader);
-                    const unmatchedSheet = XLSX.utils.aoa_to_sheet(unmatchedMappedData, { cellDates: false });
-                    unmatchedSheet['!cols'] = [{ wch: 15 }, { wch: 15 }]; // Widen quantity col slightly
+                    const unmatchedSheetData = unmatched.map(item => [item.Code, item.Quantity]);
+                    unmatchedSheetData.unshift(unmatchedHeader); // Add header row
+                    const unmatchedSheet = XLSX.utils.aoa_to_sheet(unmatchedSheetData);
+                    unmatchedSheet['!cols'] = [{ wch: 15 }, { wch: 10 }];
                     XLSX.utils.book_append_sheet(wb, unmatchedSheet, "Unmatched");
                 }
-                // Generate filename
-                const now = new Date();
-                const formattedDate = now.toLocaleDateString('en-CA');
-                const formattedTime = now.toLocaleTimeString('en-GB').replace(/:/g, '-');
-                const filename = `Transfer_${locationFromValue}_to_${locationToValue}_${formattedDate}_${formattedTime}.xlsx`;
-                // Trigger download
+
+
+                const currentDate = new Date();
+                const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`;
+                const filename = `من ${locationFromValue} الى ${locationToValue} ${formattedDate}.xlsx`;
+
                 XLSX.writeFile(wb, filename);
-                console.timeEnd("GenerateExcel");
 
-                // 5. Log the Transfer to Firestore
-                await logTransferToFirestore(locationFromValue, locationToValue, results, unmatched);
-
-                // 6. Cleanup and Feedback
-                clearQuantity(); // Clear the quantity file input and data
-                showMessage(`Transfer processed. Found ${results.length} matched, ${unmatched.length} unmatched items. Results downloaded.`, 'success');
+                // Optionally clear quantity data after processing
+                // document.getElementById('quantityFile').value = '';
+                // quantityData = null;
+                showMessage('Data Processed and Results Downloaded!', true);
 
             } catch (error) {
-                console.error("Error processing data:", error);
-                showMessage(`Error during processing: ${error.message}`, 'error');
-                // Update DB status if the error seems connection-related
-                if (error.message.toLowerCase().includes('firestore')) {
-                     updateDbStatus(false, `Processing error: ${error.message}`);
-                }
-            } finally {
-                 processDownloadButton.disabled = false; // Re-enable button
-                 checkProcessButtonState(); // Final check
+                showMessage(`Error processing data: ${error.message}`);
+                console.error("Processing error:", error);
             }
         }
 
-        // Helper function to fetch items from Firestore in batches
-        async function fetchItemsFromFirestore(codes) {
-            const dbItemsMap = new Map();
-            const codeBatches = [];
-
-            // Split codes into batches of FIRESTORE_BATCH_SIZE (30)
-            for (let i = 0; i < codes.length; i += FIRESTORE_BATCH_SIZE) {
-                codeBatches.push(codes.slice(i, i + FIRESTORE_BATCH_SIZE));
-            }
-
-            // Create an array of promises for all batch queries
-            const queryPromises = codeBatches.map(batch => {
-                console.log(`Querying Firestore for batch of ${batch.length} codes starting with ${batch[0]}`);
-                // Use the 'in' operator - requires an index on 'code' field in Firestore
-                return db.collection(ITEMS_COLLECTION).where('code', 'in', batch).get();
-            });
-
-            // Execute all queries in parallel
-            const querySnapshots = await Promise.all(queryPromises);
-
-            // Process results from all snapshots
-            querySnapshots.forEach(snapshot => {
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    // Use code from the document data itself for consistency
-                    if (data && data.code) {
-                        dbItemsMap.set(String(data.code).trim(), data);
-                    } else {
-                        console.warn(`Document ${doc.id} missing 'code' field or data.`);
-                    }
-                });
-            });
-
-            console.log(`Fetched ${dbItemsMap.size} items from Firestore for ${codes.length} unique codes.`);
-            return dbItemsMap;
-        }
-
-
-        // --- Transfer Log Handling (Firestore) ---
-
-        async function logTransferToFirestore(from, to, resultsData, unmatchedData) {
-            const timestamp = firebase.firestore.FieldValue.serverTimestamp(); // Use server timestamp
-
-            const logEntry = {
-                // No explicit ID needed, Firestore generates one
-                timestamp: timestamp,
-                locationFrom: from,
-                locationTo: to,
-                matchedCount: resultsData.length,
-                unmatchedCount: unmatchedData.length,
-            };
-
-            try {
-                 console.time("LogWrite");
-                 // Add a new document with an auto-generated ID
-                 const docRef = await db.collection(LOG_COLLECTION).add(logEntry);
-                 console.log("Transfer logged to Firestore with ID: ", docRef.id);
-                 console.timeEnd("LogWrite");
-                 // No need to call renderTransferLog manually if using real-time listener
-            } catch (error) {
-                 console.error("Error writing log to Firestore:", error);
-                 showMessage(`Error saving log: ${error.message}`, 'error');
-                 // Optionally, try saving to local storage as a fallback? Not implemented here.
-            }
-        }
-
-        // Loads log and sets up real-time listener
-        function loadAndRenderTransferLog() {
-             transferLogTableBody.innerHTML = '<tr><td colspan="6" style="text-align:center; color: #888;">Loading log from Firestore...</td></tr>';
-             exportLogButton.disabled = true;
-             clearLogButton.disabled = true;
-
-             db.collection(LOG_COLLECTION)
-               .orderBy("timestamp", "desc") // Order by timestamp, newest first
-               // .limit(50) // Optionally limit the number of logs initially loaded
-               .onSnapshot(snapshot => { // Listen for real-time updates
-                   console.log(`Received log snapshot with ${snapshot.size} entries.`);
-                   transferLogTableBody.innerHTML = ''; // Clear table
-                   if (snapshot.empty) {
-                       transferLogTableBody.innerHTML = '<tr><td colspan="6" style="text-align:center; color: #888;">No transfers logged yet.</td></tr>';
-                       exportLogButton.disabled = true;
-                       clearLogButton.disabled = true;
-                       return;
-                   }
-
-                   exportLogButton.disabled = false;
-                   clearLogButton.disabled = false;
-
-                   snapshot.forEach(doc => {
-                       const entry = doc.data();
-                       const entryId = doc.id; // Get Firestore document ID
-                       const row = transferLogTableBody.insertRow();
-
-                       // Handle timestamp (might be null briefly before server sets it)
-                       const timestamp = entry.timestamp ? entry.timestamp.toDate() : new Date(); // Use current date as fallback
-
-                       row.insertCell().textContent = timestamp.toLocaleString();
-                       row.insertCell().textContent = entry.locationFrom;
-                       row.insertCell().textContent = entry.locationTo;
-                       row.insertCell().textContent = entry.matchedCount;
-                       row.insertCell().textContent = entry.unmatchedCount;
-
-                       // Actions Cell
-                       const actionsCell = row.insertCell();
-                       const deleteButton = document.createElement('button');
-                       deleteButton.innerHTML = '<span class="material-icons" style="font-size: 1em;">delete</span>';
-                       deleteButton.classList.add('secondary-button', 'danger-button');
-                       deleteButton.title = 'Delete this log entry';
-                       deleteButton.style.padding = '2px 6px';
-                       deleteButton.onclick = (e) => {
-                           e.stopPropagation();
-                           deleteLogEntry(entryId); // Pass Firestore document ID
-                       };
-                       actionsCell.appendChild(deleteButton);
-                   });
-               }, error => {
-                   console.error("Error fetching transfer log:", error);
-                    showMessage(`Error loading log: ${error.message}`, 'error');
-                    transferLogTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; color: red;">Error loading log: ${error.message}</td></tr>`;
-                     exportLogButton.disabled = true;
-                     clearLogButton.disabled = true;
-               });
-        }
-
-        async function deleteLogEntry(logDocId) {
-            if (!logDocId) {
-                console.error("Invalid log ID provided for deletion.");
-                return;
-            }
-            if (confirm("Are you sure you want to delete this log entry? This cannot be undone.")) {
-                 showMessage('Deleting log entry...', 'info');
-                try {
-                    await db.collection(LOG_COLLECTION).doc(logDocId).delete();
-                    showMessage('Log entry deleted.', 'success');
-                    // UI will update automatically via the onSnapshot listener
-                } catch (error) {
-                     console.error("Error deleting log entry:", error);
-                     showMessage(`Error deleting log entry: ${error.message}`, 'error');
-                }
-            }
-        }
-
-
-        async function clearTransferLog() {
-             // Clearing all documents efficiently client-side is tricky.
-             // Best practice is often a server-side function (Cloud Function).
-             // Simple client-side approach (slow for many docs): Fetch all IDs and delete one by one.
-            if (confirm("Are you sure you want to clear the ENTIRE transfer log? This is irreversible and may take time.")) {
-                 showMessage('Clearing log... This may take a while.', 'info');
-                 clearLogButton.disabled = true;
-                 exportLogButton.disabled = true;
-                try {
-                     const snapshot = await db.collection(LOG_COLLECTION).get();
-                     if (snapshot.empty) {
-                         showMessage('Log is already empty.', 'info');
-                         return;
-                     }
-                     // Create a batch delete
-                     const batch = db.batch();
-                     snapshot.docs.forEach(doc => {
-                         batch.delete(doc.ref);
-                     });
-                     await batch.commit();
-                     showMessage('Transfer log cleared successfully.', 'success');
-                     // UI should update via listener, but force re-check just in case
-                     // loadAndRenderTransferLog();
-                 } catch (error) {
-                     console.error("Error clearing transfer log:", error);
-                     showMessage(`Error clearing log: ${error.message}`, 'error');
-                 } finally {
-                     // Re-enable buttons (state will be updated by listener anyway)
-                     clearLogButton.disabled = false;
-                      exportLogButton.disabled = true; // Disabled until listener confirms log isn't empty
-                 }
-            }
-        }
-
-         async function exportTransferLog() {
-              showMessage('Fetching log data for export...', 'info');
-              exportLogButton.disabled = true;
-             try {
-                  const snapshot = await db.collection(LOG_COLLECTION)
-                                           .orderBy("timestamp", "desc")
-                                           .get();
-
-                 if (snapshot.empty) {
-                     showMessage('Nothing in the log to export.', 'info');
-                     return;
-                 }
-
-                 const exportData = snapshot.docs.map(doc => {
-                     const entry = doc.data();
-                     const timestamp = entry.timestamp ? entry.timestamp.toDate() : null;
-                     return {
-                         Timestamp: timestamp ? timestamp.toLocaleString() : 'N/A',
-                         'From Location': entry.locationFrom,
-                         'To Location': entry.locationTo,
-                         'Matched Items': entry.matchedCount,
-                         'Unmatched Items': entry.unmatchedCount,
-                     };
-                 });
-
-                 const worksheet = XLSX.utils.json_to_sheet(exportData);
-                 const cols = Object.keys(exportData[0]).map(key => ({
-                     wch: Math.max(key.length, ...exportData.map(row => String(row[key]).length)) + 2
-                 }));
-                  worksheet['!cols'] = cols;
-
-                 const workbook = XLSX.utils.book_new();
-                 XLSX.utils.book_append_sheet(workbook, worksheet, 'Transfer Log');
-
-                 const now = new Date();
-                 const formattedDate = now.toLocaleDateString('en-CA');
-                 const filename = `Kero_Transfer_Log_${formattedDate}.xlsx`;
-                 XLSX.writeFile(workbook, filename);
-                 showMessage('Transfer log exported successfully.', 'success');
-
-             } catch (error) {
-                 console.error("Error exporting log:", error);
-                 showMessage(`Error exporting log: ${error.message}`, 'error');
-             } finally {
-                 exportLogButton.disabled = false; // Re-enable after attempt
-             }
-         }
-
-
-        // --- Utility Functions ---
-        function showMessage(message, type = 'info') {
+        function showMessage(message, typeOrSuccess = false) {
+            const messageDiv = document.getElementById('message');
             messageDiv.innerText = message;
-            messageDiv.className = 'visible ' + type;
+            if (typeof typeOrSuccess === 'string') {
+                messageDiv.className = typeOrSuccess; // 'success', 'info', or '' for error
+            } else {
+                messageDiv.className = typeOrSuccess ? 'success' : '';
+            }
         }
-
     </script>
 
 </body>
-
 </html>
