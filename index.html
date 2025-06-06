@@ -10,35 +10,227 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
+    <!-- MODERN UI STYLES - NO OTHER CHANGES BEYOND THIS BLOCK -->
     <style>
-        body { font-family: 'Arial', sans-serif; background-color: #f0f8ff; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; color: #424242; }
-        .container { background-color: #fff; border-radius: 12px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 30px; width: 85%; max-width: 900px; text-align: center; margin-top: 20px; margin-bottom: 20px; position: relative; }
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+        :root {
+            --primary-color: #005c97;
+            --secondary-color: #363795;
+            --success-color: #28a745;
+            --error-color: #dc3545;
+            --info-color: #17a2b8;
+            --light-bg: #f8f9fa;
+            --dark-text: #343a40;
+            --light-text: #6c757d;
+            --border-color: #dee2e6;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-image: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--dark-text);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+            padding: 40px;
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            position: relative;
+            border: 1px solid var(--border-color);
+        }
+
         .page { display: none; }
-        h1 { color: #1e88e5; margin-bottom: 20px; }
-        #kero-assistance { font-size: 2em; }
-        .subtitle { font-size: 1.5em; font-style: italic; }
-        .section { margin-bottom: 25px; padding: 20px; border: 1px solid #bbdefb; border-radius: 8px; background-color: #e3f2fd; }
-        .instructions { font-size: 0.9em; color: #555; background-color: #fffde7; padding: 10px; border-radius: 5px; border: 1px dashed #fbc02d; margin-bottom: 15px; }
-        .location-container { display: flex; justify-content: space-around; align-items: center; margin-bottom: 15px; }
-        .location-container select { width: 45%; padding: 10px; border: 1px solid #bbdefb; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
+
+        h1 {
+            color: var(--dark-text);
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        #kero-assistance {
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            font-size: 1.8em;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .container > p {
+            color: var(--light-text);
+            font-size: 1.1em;
+            margin-bottom: 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 25px 0;
+            border: none;
+            border-top: 1px solid var(--border-color);
+            background-color: transparent;
+        }
+
+        .instructions {
+            font-size: 0.9em;
+            color: #0c5460;
+            background-color: #d1ecf1;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #bee5eb;
+            margin-bottom: 25px;
+            text-align: left;
+        }
+        .instructions strong {
+            color: #004085;
+        }
+
+        .location-container {
+            display: flex;
+            gap: 20px;
+            justify-content: space-around;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
         input[type="file"] { display: none; }
-        button { background-color: #009688; color: white; border: none; padding: 14px 28px; border-radius: 8px; cursor: pointer; font-size: 16px; margin: 5px; transition: background-color 0.3s ease; }
-        button:hover:not(:disabled) { background-color: #00796b; }
-        button:disabled { background-color: #cccccc; cursor: not-allowed; }
-        .main-action-button { font-size: 18px; padding: 16px 32px; background-color: #4caf50; margin-top: 10px; }
-        .main-action-button:hover:not(:disabled) { background-color: #388e3c; }
-        .home-button { display: block; width: 80%; margin: 15px auto; padding: 25px; font-size: 1.2em; background-color: #2196f3; }
-        .home-button:hover { background-color: #1976d2; }
-        .home-nav-button { background-color: #607d8b; position: absolute; top: 20px; left: 20px; }
-        .home-nav-button:hover { background-color: #455a64; }
-        .message-display { margin-top: 20px; font-weight: bold; min-height: 1.2em; padding: 8px; border-radius: 4px; text-align: left;}
-        .message-display.success { color: #2e7d32; background-color: #e8f5e9; }
-        .message-display.info { color: #1976d2; background-color: #e3f2fd; }
-        .message-display.error { color: #c62828; background-color: #ffebee; }
-        .select2-container { width: 100% !important; }
-        .select2-selection { border: 1px solid #bbdefb !important; border-radius: 5px !important; padding: 6px 12px !important; height: auto !important; }
-        .version { position: fixed; top: 10px; right: 10px; font-size: 0.8em; color: #777; }
+        
+        /* Modernized Button Styles */
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            margin: 5px;
+            transition: all 0.25s ease-in-out;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 92, 151, 0.2);
+        }
+        
+        button:disabled {
+            background-color: #ced4da;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .main-action-button {
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 15px 35px;
+            background-color: var(--success-color);
+        }
+        .main-action-button:hover:not(:disabled) {
+             box-shadow: 0 6px 12px rgba(40, 167, 69, 0.25);
+        }
+
+        .home-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            margin: 15px 0;
+            padding: 20px;
+            font-size: 1.2em;
+            font-weight: 600;
+            background-color: #fff;
+            color: var(--primary-color);
+            border: 2px solid var(--border-color);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.04);
+        }
+        .home-button:hover {
+            border-color: var(--primary-color);
+            background-color: #f8f9fa;
+            color: var(--secondary-color);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.08);
+        }
+        
+        .home-nav-button {
+            background-color: var(--light-text);
+            position: absolute;
+            top: 25px;
+            left: 25px;
+            padding: 8px 16px;
+        }
+        .home-nav-button:hover {
+            background-color: var(--dark-text);
+        }
+
+        .message-display {
+            margin-top: 20px;
+            font-weight: 500;
+            min-height: 1.2em;
+            padding: 12px 18px;
+            border-radius: 8px;
+            text-align: left;
+            border: 1px solid transparent;
+        }
+        .message-display:before {
+            font-weight: 700;
+            margin-right: 10px;
+        }
+        .message-display.success { color: #155724; background-color: #d4edda; border-color: #c3e6cb; }
+        .message-display.success:before { content: "✔"; }
+        .message-display.info { color: #0c5460; background-color: #d1ecf1; border-color: #bee5eb; }
+        .message-display.info:before { content: "ℹ"; }
+        .message-display.error { color: #721c24; background-color: #f8d7da; border-color: #f5c6cb; }
+        .message-display.error:before { content: "⚠"; }
+
+        /* Select2 Modernization */
+        .select2-container--default .select2-selection--single {
+            border: 1px solid var(--border-color) !important;
+            border-radius: 8px !important;
+            height: 45px !important;
+            padding: 8px 12px !important;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: var(--dark-text) !important;
+            line-height: 28px !important;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 43px !important;
+        }
+        .select2-dropdown {
+            border: 1px solid var(--border-color) !important;
+            border-radius: 8px !important;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+
+        .version {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            font-size: 0.8em;
+            color: #fff;
+            background-color: rgba(0, 0, 0, 0.4);
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
     </style>
+    <!-- END OF MODERN UI STYLES -->
 </head>
 
 <body>
@@ -83,6 +275,7 @@
         <div class="message-display"></div>
     </div>
 
+    <!-- JAVASCRIPT IS UNCHANGED -->
     <script>
         let databaseData = null;
         let quantityData = null;
@@ -149,7 +342,6 @@
             }
         }
 
-        // *** UPDATED to check for 'supplier name' ***
         function parseCSVDatabase(csvText) {
             const rows = csvText.trim().split('\n');
             databaseData = rows.map(row => row.split(',').map(cell => cell.trim()));
@@ -269,7 +461,6 @@
             const code = String(barcode).trim(); if (!/^\d+$/.test(code)) return 'Invalid Characters'; if (code.length !== 13) return 'Invalid Length'; let sum = 0; for (let i = 0; i < 12; i++) { sum += (i % 2 === 0) ? parseInt(code[i]) : parseInt(code[i]) * 3; } const calculatedCheckDigit = (10 - (sum % 10)) % 10; return (calculatedCheckDigit === parseInt(code[12])) ? 'Valid' : 'Invalid Checksum';
         }
 
-        // *** UPDATED to retrieve and export 'supplier name' ***
         function processAndValidateBarcodes() {
             if (!databaseData) return showMessage('Error: The main product database has not loaded. Please refresh.', 'error');
             if (!barcodeData) { return showMessage('Error: Please upload a Barcode file before processing.', 'error'); }
@@ -280,7 +471,7 @@
                 const codeColumnDb = dbHeaders.indexOf('code');
                 const barcodeColumnDb = dbHeaders.indexOf('barcode');
                 const nameColumnDb = dbHeaders.indexOf('name');
-                const supplierNameColumnDb = dbHeaders.indexOf('supplier name'); // Get index for the new column
+                const supplierNameColumnDb = dbHeaders.indexOf('supplier name');
 
                 const barcodeHeaders = barcodeData[0].map(h => h.toLowerCase());
                 const barcodeColumnFile = barcodeHeaders.indexOf('barcode');
@@ -297,17 +488,17 @@
                         if (dbRow[barcodeColumnDb] !== undefined && String(dbRow[barcodeColumnDb]).trim() === barcodeToFind) {
                             foundCode = dbRow[codeColumnDb] || 'Not Found';
                             foundName = dbRow[nameColumnDb] || 'Not Found';
-                            foundSupplier = dbRow[supplierNameColumnDb] || 'Not Found'; // Retrieve supplier name
+                            foundSupplier = dbRow[supplierNameColumnDb] || 'Not Found';
                             break;
                         }
                     }
-                    results.push([barcodeToFind, validationStatus, foundCode, foundName, foundSupplier]); // Add to results array
+                    results.push([barcodeToFind, validationStatus, foundCode, foundName, foundSupplier]);
                 }
 
                 const wb = XLSX.utils.book_new();
-                const header = ["Barcode", "Validation Status", "Code", "Name", "Supplier"]; // Add to header
+                const header = ["Barcode", "Validation Status", "Code", "Name", "Supplier"];
                 const ws = XLSX.utils.aoa_to_sheet([header, ...results]);
-                ws['!cols'] = [{ wch: 20 }, { wch: 20 }, { wch: 15 }, { wch: 50 }, { wch: 30 }]; // Add column width for supplier
+                ws['!cols'] = [{ wch: 20 }, { wch: 20 }, { wch: 15 }, { wch: 50 }, { wch: 30 }];
                 XLSX.utils.book_append_sheet(wb, ws, "Validation Results");
 
                 const formattedDate = new Date().toISOString().slice(0, 10);
