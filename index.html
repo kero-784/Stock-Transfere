@@ -31,7 +31,7 @@
         .home-button:hover { background-color: #1976d2; }
         .home-nav-button { background-color: #607d8b; position: absolute; top: 20px; left: 20px; }
         .home-nav-button:hover { background-color: #455a64; }
-        .message-display { margin-top: 20px; font-weight: bold; min-height: 1.2em; padding: 8px; border-radius: 4px; }
+        .message-display { margin-top: 20px; font-weight: bold; min-height: 1.2em; padding: 8px; border-radius: 4px; text-align: left;}
         .message-display.success { color: #2e7d32; background-color: #e8f5e9; }
         .message-display.info { color: #1976d2; background-color: #e3f2fd; }
         .message-display.error { color: #c62828; background-color: #ffebee; }
@@ -42,7 +42,7 @@
 </head>
 
 <body>
-    <div class="version">v 5.0 - Unrestricted Buttons</div>
+    <div class="version">v 5.1 - Stable</div>
 
     <!-- Home Page -->
     <div id="homePage" class="container page">
@@ -52,7 +52,7 @@
             <button id="goToTransferBtn" class="home-button">Stock Transfer Management</button>
             <button id="goToValidatorBtn" class="home-button">Barcode Validator & Retriever</button>
         </div>
-        <div class="message-display">Fetching product database...</div>
+        <div class="message-display"></div>
     </div>
 
     <!-- Stock Transfer Page -->
@@ -96,7 +96,6 @@
         let databaseData = null;
         let quantityData = null;
         let barcodeData = null;
-        let activePageId = 'homePage';
         const googleSheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQNrRFFRPe_jrOrDZM58gRqxfsA0deD60_q2jkA7XJRRfJQ7IiBdIqNDN7JdMawjw/pub?output=csv';
 
         const locations = [
@@ -112,7 +111,6 @@
 
         // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', function() {
-            console.log("App Initializing...");
             showPage('homePage');
             fetchProductDatabase();
             
@@ -132,14 +130,11 @@
             document.getElementById('barcodeFile').addEventListener('change', handleBarcodeUpload);
             document.getElementById('clearBarcodes').addEventListener('click', clearBarcodes);
             document.getElementById('validateDownloadButton').addEventListener('click', processAndValidateBarcodes);
-            console.log("Event listeners attached.");
         });
 
         // --- PAGE NAVIGATION ---
         function showPage(pageId) {
-            console.log(`Navigating to page: ${pageId}`);
-            activePageId = pageId;
-            document.querySelectorAll('.page').forEach(page => page.style.display = 'none');
+            document.querySelectorAll('.page').forEach(page => { page.style.display = 'none'; });
             const newPage = document.getElementById(pageId);
             if (newPage) {
                 newPage.style.display = 'block';
@@ -153,19 +148,15 @@
         
         // --- CORE LOGIC ---
         async function fetchProductDatabase() {
-            console.log("Attempting to fetch product database...");
             showMessage('Fetching product database from Google Sheet...', 'info');
             try {
                 const response = await fetch(googleSheetURL);
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const csvText = await response.text();
                 parseCSVDatabase(csvText);
-                console.log("Product database fetched and parsed successfully.");
                 showMessage('Product database loaded successfully! Ready to use.', 'success');
-                // *** CHANGE: Enable buttons now that the core data is loaded ***
                 updateButtonStates();
             } catch (error) {
-                console.error("CRITICAL: Failed to fetch product database.", error);
                 showMessage(`Error fetching product database: ${error.message}. App cannot function.`, 'error');
             }
         }
@@ -190,10 +181,8 @@
         }
 
         function handleFileUpload(event, dataVariableKey, sheetNameFriendly, requiredHeaders) {
-            console.log(`--- Starting File Upload for: ${sheetNameFriendly} ---`);
             const file = event.target.files[0];
             if (!file) { return; }
-            console.log(`File selected: ${file.name}`);
 
             const reader = new FileReader();
             reader.onload = function(e) {
@@ -204,7 +193,6 @@
                     if (!workbook.SheetNames || workbook.SheetNames.length === 0) { throw new Error("Excel file contains no sheets."); }
                     
                     const firstSheetName = workbook.SheetNames[0];
-                    console.log(`Reading data from the first sheet: "${firstSheetName}"`);
                     const sheet = workbook.Sheets[firstSheetName];
                     
                     const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
@@ -217,50 +205,36 @@
                     
                     window[dataVariableKey] = jsonData;
                     showMessage(`${sheetNameFriendly} file uploaded successfully! Ready to process.`, 'success');
-                    console.log(`SUCCESS: ${dataVariableKey} now contains ${jsonData.length - 1} data rows.`);
 
                 } catch (error) {
-                    console.error("File upload failed:", error.message);
                     showMessage(`Upload Error: ${error.message}`, 'error');
                     window[dataVariableKey] = null;
                 } finally {
                     event.target.value = '';
-                    console.log("--- Finished File Upload Attempt ---");
                 }
             };
-            reader.onerror = () => {
-                console.error("FileReader failed to read the file.");
-                showMessage(`Error reading file. It may be corrupt or in use.`);
-            }
+            reader.onerror = () => { showMessage(`Error reading file. It may be corrupt or in use.`, 'error'); }
             reader.readAsArrayBuffer(file);
         }
 
         function clearQuantity() {
             quantityData = null;
-            console.log("Quantity data cleared.");
             showMessage('Quantity file has been cleared.', 'info');
         }
 
         function clearBarcodes() {
             barcodeData = null;
-            console.log("Barcode data cleared.");
             showMessage('Barcode file has been cleared.', 'info');
         }
 
-        // *** CHANGE: This function now just enables the buttons once the database loads. ***
         function updateButtonStates() {
             if (databaseData) {
                 document.getElementById('processTransferButton').disabled = false;
                 document.getElementById('validateDownloadButton').disabled = false;
-                console.log("Main process buttons have been enabled.");
             }
         }
         
-        // *** CHANGE: Moved validation checks inside the function. ***
         function processTransferData() {
-            console.log("Starting 'Process Transfer Data'...");
-
-            // --- VALIDATION CHECKS AT THE START ---
             if (!databaseData) return showMessage('Error: The main product database has not loaded. Please refresh.', 'error');
             
             const locationFromValue = document.getElementById('locationFrom').value;
@@ -272,10 +246,8 @@
             if (!quantityData) {
                 return showMessage('Error: Please upload a Quantity file before processing.', 'error');
             }
-            // --- END OF VALIDATION ---
             
             try {
-                // (Processing logic is unchanged)
                 const results = [], unmatched = [];
                 const dbHeaders = databaseData[0].map(h => String(h).toLowerCase().trim());
                 const codeColumnDb = dbHeaders.indexOf('code'), barcodeColumnDb = dbHeaders.indexOf('barcode'), nameColumnDb = dbHeaders.indexOf('name');
@@ -296,7 +268,6 @@
                     }
                     if (!found) unmatched.push({ Code: codeToFind, Quantity: quantity });
                 }
-                console.log(`Processing complete. Found: ${results.length}, Unmatched: ${unmatched.length}`);
                 const wb = XLSX.utils.book_new();
                 const resultsSheet = XLSX.utils.aoa_to_sheet([["Code", "Barcode", "Name", "Quantity"], ...results.map(item => [item.Code, item.Barcode, item.Name, item.Quantity])]);
                 resultsSheet['!cols'] = [{ wch: 15 }, { wch: 20 }, { wch: 50 }, { wch: 10 }];
@@ -309,27 +280,18 @@
                 const formattedDate = new Date().toISOString().slice(0, 10);
                 XLSX.writeFile(wb, `من ${locationFromValue} الى ${locationToValue} ${formattedDate}.xlsx`);
                 showMessage('Success! Transfer data processed and results downloaded.', 'success');
-            } catch (error) { console.error("Error during transfer processing:", error); showMessage(`Error processing transfer data: ${error.message}`, 'error'); }
+            } catch (error) { showMessage(`Error processing transfer data: ${error.message}`, 'error'); }
         }
         
-        function validateEAN(barcode) { /* Logic is unchanged */
+        function validateEAN(barcode) {
             const code = String(barcode).trim(); if (!/^\d+$/.test(code)) return 'Invalid Characters'; if (code.length !== 13) return 'Invalid Length'; let sum = 0; for (let i = 0; i < 12; i++) { sum += (i % 2 === 0) ? parseInt(code[i]) : parseInt(code[i]) * 3; } const calculatedCheckDigit = (10 - (sum % 10)) % 10; return (calculatedCheckDigit === parseInt(code[12])) ? 'Valid' : 'Invalid Checksum';
         }
 
-        // *** CHANGE: Moved validation checks inside the function. ***
         function processAndValidateBarcodes() {
-            console.log("Starting 'Process and Validate Barcodes'...");
-            
-            // --- VALIDATION CHECKS AT THE START ---
             if (!databaseData) return showMessage('Error: The main product database has not loaded. Please refresh.', 'error');
-            
-            if (!barcodeData) {
-                return showMessage('Error: Please upload a Barcode file before processing.', 'error');
-            }
-            // --- END OF VALIDATION ---
+            if (!barcodeData) { return showMessage('Error: Please upload a Barcode file before processing.', 'error'); }
 
             try {
-                // (Processing logic is unchanged)
                 const results = [];
                 const dbHeaders = databaseData[0].map(h => String(h).toLowerCase().trim());
                 const codeColumnDb = dbHeaders.indexOf('code'), barcodeColumnDb = dbHeaders.indexOf('barcode'), nameColumnDb = dbHeaders.indexOf('name');
@@ -350,7 +312,6 @@
                     }
                     results.push({ Barcode: barcodeToFind, Status: validationStatus, Code: foundCode, Name: foundName });
                 }
-                console.log(`Processing complete. Validated ${results.length} barcodes.`);
                 const wb = XLSX.utils.book_new();
                 const resultsSheet = XLSX.utils.aoa_to_sheet([["Barcode", "Validation Status", "Code", "Name"], ...results.map(item => [item.Barcode, item.Status, item.Code, item.Name])]);
                 resultsSheet['!cols'] = [{ wch: 20 }, { wch: 20 }, { wch: 15 }, { wch: 50 }];
@@ -358,19 +319,34 @@
                 const formattedDate = new Date().toISOString().slice(0, 10);
                 XLSX.writeFile(wb, `Barcode_Validation_Results_${formattedDate}.xlsx`);
                 showMessage('Success! Barcodes validated and results downloaded.', 'success');
-            } catch (error) { console.error("Error during barcode validation:", error); showMessage(`Error processing barcodes: ${error.message}`, 'error'); }
+            } catch (error) { showMessage(`Error processing barcodes: ${error.message}`, 'error'); }
         }
 
+        // *** FIXED showMessage function ***
         function showMessage(message, type = 'info') {
-            const currentPage = document.getElementById(activePageId);
-            const msgDiv = currentPage ? currentPage.querySelector('.message-display') : document.querySelector('#homePage .message-display');
-            if (!msgDiv) return;
+            // Find the message display on the currently VISIBLE page.
+            let messageDiv = document.querySelector('.page[style*="block"] .message-display');
 
-            msgDiv.innerText = message;
-            msgDiv.className = 'message-display'; // Reset
-            if (type === 'success') messageDiv.classList.add('success');
-            else if (type === 'error') messageDiv.classList.add('error');
-            else if (type === 'info') messageDiv.classList.add('info');
+            // If no page is visible (e.g., during initial load), default to the home page's message display.
+            if (!messageDiv) {
+                messageDiv = document.querySelector('#homePage .message-display');
+            }
+
+            // If it's still not found, we can't show a message, so we exit.
+            if (!messageDiv) {
+                console.error("Fatal Error: Could not find any .message-display element on the page.");
+                return;
+            }
+
+            messageDiv.innerText = message;
+            messageDiv.className = 'message-display'; // Reset classes
+            if (type === 'success') {
+                messageDiv.classList.add('success');
+            } else if (type === 'error') {
+                messageDiv.classList.add('error');
+            } else if (type === 'info') {
+                messageDiv.classList.add('info');
+            }
         }
     </script>
 </body>
