@@ -42,7 +42,7 @@
 </head>
 
 <body>
-    <div class="version">v 5.2 - Final</div>
+    <div class="version">v 5.3</div>
 
     <!-- HTML structure is unchanged -->
     <div id="homePage" class="container page">
@@ -84,7 +84,6 @@
     </div>
 
     <script>
-        // --- GLOBAL VARIABLES ---
         let databaseData = null;
         let quantityData = null;
         let barcodeData = null;
@@ -101,7 +100,6 @@
             { id: "مخزن الساحل 202", text: "مخزن الساحل 202" },
         ];
 
-        // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', function() {
             showPage('homePage');
             fetchProductDatabase();
@@ -124,7 +122,6 @@
             document.getElementById('validateDownloadButton').addEventListener('click', processAndValidateBarcodes);
         });
 
-        // --- PAGE NAVIGATION ---
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(page => { page.style.display = 'none'; });
             const newPage = document.getElementById(pageId);
@@ -138,7 +135,6 @@
             }
         }
         
-        // --- CORE LOGIC ---
         async function fetchProductDatabase() {
             showMessage('Fetching product database from Google Sheet...', 'info');
             try {
@@ -149,34 +145,32 @@
                 showMessage('Product database loaded successfully! Ready to use.', 'success');
                 updateButtonStates();
             } catch (error) {
-                showMessage(`Error fetching product database: ${error.message}. App cannot function.`, 'error');
+                showMessage(`Error loading database: ${error.message}. App cannot function.`, 'error');
             }
         }
 
+        // *** UPDATED to check for 'supplier name' ***
         function parseCSVDatabase(csvText) {
             const rows = csvText.trim().split('\n');
             databaseData = rows.map(row => row.split(',').map(cell => cell.trim()));
             if (!databaseData || databaseData.length === 0) throw new Error("Parsed database CSV is empty.");
+            
             const headers = databaseData[0].map(h => h.toLowerCase());
-            if (!headers.includes('code') || !headers.includes('barcode') || !headers.includes('name')) {
-                 throw new Error(`Google Sheet is missing a required header. It must contain: code, barcode, name.`);
+            const requiredDbHeaders = ['code', 'barcode', 'name', 'supplier name'];
+            const missingHeaders = requiredDbHeaders.filter(h => !headers.includes(h));
+
+            if (missingHeaders.length > 0) {
+                 throw new Error(`Your Google Sheet is missing required column(s): [${missingHeaders.join(', ')}].`);
             }
         }
 
-        function handleQuantityUpload(event) {
-            handleFileUpload(event, 'quantity');
-        }
+        function handleQuantityUpload(event) { handleFileUpload(event, 'quantity'); }
+        function handleBarcodeUpload(event) { handleFileUpload(event, 'barcode'); }
 
-        function handleBarcodeUpload(event) {
-            handleFileUpload(event, 'barcode');
-        }
-
-        // *** THIS IS THE FIXED FUNCTION ***
         function handleFileUpload(event, fileType) {
             const file = event.target.files[0];
             if (!file) { return; }
 
-            // Determine requirements based on file type
             const isQuantityFile = fileType === 'quantity';
             const requiredHeaders = isQuantityFile ? ['code', 'quantity'] : ['barcode'];
             const friendlyName = isQuantityFile ? 'Quantity' : 'Barcode';
@@ -186,54 +180,36 @@
                 try {
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
-
                     if (!workbook.SheetNames || workbook.SheetNames.length === 0) { throw new Error("Excel file contains no sheets."); }
                     
                     const firstSheetName = workbook.SheetNames[0];
                     const sheet = workbook.Sheets[firstSheetName];
                     const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
-
                     if (jsonData.length <= 1) { throw new Error(`The first sheet ("${firstSheetName}") is empty or has no data rows.`); }
                     
                     const headers = jsonData[0].map(header => String(header).toLowerCase().trim());
                     const missingHeaders = requiredHeaders.filter(header => !headers.includes(header));
                     if (missingHeaders.length > 0) { throw new Error(`The first sheet is missing required column(s): [${missingHeaders.join(', ')}].`); }
                     
-                    // --- DIRECT ASSIGNMENT (THE FIX) ---
-                    if (isQuantityFile) {
-                        quantityData = jsonData;
-                    } else {
-                        barcodeData = jsonData;
-                    }
-                    // --- END OF FIX ---
+                    if (isQuantityFile) { quantityData = jsonData; } 
+                    else { barcodeData = jsonData; }
                     
                     showMessage(`${friendlyName} file uploaded successfully! Ready to process.`, 'success');
 
                 } catch (error) {
                     showMessage(`Upload Error: ${error.message}`, 'error');
-                    // Reset the correct variable on failure
-                    if (isQuantityFile) {
-                        quantityData = null;
-                    } else {
-                        barcodeData = null;
-                    }
+                    if (isQuantityFile) { quantityData = null; } 
+                    else { barcodeData = null; }
                 } finally {
-                    event.target.value = ''; // Allow re-uploading same file
+                    event.target.value = '';
                 }
             };
             reader.onerror = () => { showMessage(`Error reading file. It may be corrupt or in use.`, 'error'); }
             reader.readAsArrayBuffer(file);
         }
 
-        function clearQuantity() {
-            quantityData = null;
-            showMessage('Quantity file has been cleared.', 'info');
-        }
-
-        function clearBarcodes() {
-            barcodeData = null;
-            showMessage('Barcode file has been cleared.', 'info');
-        }
+        function clearQuantity() { quantityData = null; showMessage('Quantity file has been cleared.', 'info'); }
+        function clearBarcodes() { barcodeData = null; showMessage('Barcode file has been cleared.', 'info'); }
 
         function updateButtonStates() {
             if (databaseData) {
@@ -242,7 +218,6 @@
             }
         }
         
-        // --- PROCESSING FUNCTIONS (UNCHANGED) ---
         function processTransferData() {
             if (!databaseData) return showMessage('Error: The main product database has not loaded. Please refresh.', 'error');
             const locationFromValue = document.getElementById('locationFrom').value;
@@ -274,11 +249,14 @@
                 }
                 
                 const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([["Code", "Barcode", "Name", "Quantity"], ...results]), "Results");
-                wb.Sheets["Results"]['!cols'] = [{ wch: 15 }, { wch: 20 }, { wch: 50 }, { wch: 10 }];
+                const wsResults = XLSX.utils.aoa_to_sheet([["Code", "Barcode", "Name", "Quantity"], ...results]);
+                wsResults['!cols'] = [{ wch: 15 }, { wch: 20 }, { wch: 50 }, { wch: 10 }];
+                XLSX.utils.book_append_sheet(wb, wsResults, "Results");
+
                 if (unmatched.length > 0) {
-                    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([["Code", "Quantity"], ...unmatched]), "Unmatched");
-                    wb.Sheets["Unmatched"]['!cols'] = [{ wch: 15 }, { wch: 10 }];
+                    const wsUnmatched = XLSX.utils.aoa_to_sheet([["Code", "Quantity"], ...unmatched]);
+                    wsUnmatched['!cols'] = [{ wch: 15 }, { wch: 10 }];
+                    XLSX.utils.book_append_sheet(wb, wsUnmatched, "Unmatched");
                 }
 
                 const formattedDate = new Date().toISOString().slice(0, 10);
@@ -291,6 +269,7 @@
             const code = String(barcode).trim(); if (!/^\d+$/.test(code)) return 'Invalid Characters'; if (code.length !== 13) return 'Invalid Length'; let sum = 0; for (let i = 0; i < 12; i++) { sum += (i % 2 === 0) ? parseInt(code[i]) : parseInt(code[i]) * 3; } const calculatedCheckDigit = (10 - (sum % 10)) % 10; return (calculatedCheckDigit === parseInt(code[12])) ? 'Valid' : 'Invalid Checksum';
         }
 
+        // *** UPDATED to retrieve and export 'supplier name' ***
         function processAndValidateBarcodes() {
             if (!databaseData) return showMessage('Error: The main product database has not loaded. Please refresh.', 'error');
             if (!barcodeData) { return showMessage('Error: Please upload a Barcode file before processing.', 'error'); }
@@ -298,29 +277,38 @@
             try {
                 const results = [];
                 const dbHeaders = databaseData[0].map(h => h.toLowerCase());
-                const codeColumnDb = dbHeaders.indexOf('code'), barcodeColumnDb = dbHeaders.indexOf('barcode'), nameColumnDb = dbHeaders.indexOf('name');
+                const codeColumnDb = dbHeaders.indexOf('code');
+                const barcodeColumnDb = dbHeaders.indexOf('barcode');
+                const nameColumnDb = dbHeaders.indexOf('name');
+                const supplierNameColumnDb = dbHeaders.indexOf('supplier name'); // Get index for the new column
+
                 const barcodeHeaders = barcodeData[0].map(h => h.toLowerCase());
                 const barcodeColumnFile = barcodeHeaders.indexOf('barcode');
 
                 for (let i = 1; i < barcodeData.length; i++) {
                     const barcodeToFind = (barcodeData[i][barcodeColumnFile] !== undefined) ? String(barcodeData[i][barcodeColumnFile]).trim() : '';
                     if (!barcodeToFind) continue;
+
                     const validationStatus = validateEAN(barcodeToFind);
-                    let foundCode = 'Not Found', foundName = 'Not Found';
+                    let foundCode = 'Not Found', foundName = 'Not Found', foundSupplier = 'Not Found';
+
                     for (let j = 1; j < databaseData.length; j++) {
                         const dbRow = databaseData[j];
                         if (dbRow[barcodeColumnDb] !== undefined && String(dbRow[barcodeColumnDb]).trim() === barcodeToFind) {
-                            foundCode = dbRow[codeColumnDb] || '';
-                            foundName = dbRow[nameColumnDb] || '';
+                            foundCode = dbRow[codeColumnDb] || 'Not Found';
+                            foundName = dbRow[nameColumnDb] || 'Not Found';
+                            foundSupplier = dbRow[supplierNameColumnDb] || 'Not Found'; // Retrieve supplier name
                             break;
                         }
                     }
-                    results.push([barcodeToFind, validationStatus, foundCode, foundName]);
+                    results.push([barcodeToFind, validationStatus, foundCode, foundName, foundSupplier]); // Add to results array
                 }
 
                 const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([["Barcode", "Validation Status", "Code", "Name"], ...results]), "Validation Results");
-                wb.Sheets["Validation Results"]['!cols'] = [{ wch: 20 }, { wch: 20 }, { wch: 15 }, { wch: 50 }];
+                const header = ["Barcode", "Validation Status", "Code", "Name", "Supplier"]; // Add to header
+                const ws = XLSX.utils.aoa_to_sheet([header, ...results]);
+                ws['!cols'] = [{ wch: 20 }, { wch: 20 }, { wch: 15 }, { wch: 50 }, { wch: 30 }]; // Add column width for supplier
+                XLSX.utils.book_append_sheet(wb, ws, "Validation Results");
 
                 const formattedDate = new Date().toISOString().slice(0, 10);
                 XLSX.writeFile(wb, `Barcode_Validation_Results_${formattedDate}.xlsx`);
