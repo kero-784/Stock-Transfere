@@ -33,6 +33,7 @@
             text-align: center;
             margin-top: 20px;
             margin-bottom: 20px;
+            position: relative; /* For home button positioning */
         }
 
         /* Hide all pages by default */
@@ -94,7 +95,7 @@
             transition: background-color 0.3s ease;
         }
 
-        button:hover {
+        button:hover:not(:disabled) {
             background-color: #00796b;
         }
 
@@ -140,6 +141,7 @@
             margin-top: 20px;
             font-weight: bold;
             color: #d32f2f;
+            min-height: 1.2em; /* Prevents layout shift */
         }
 
         .message-display.success {
@@ -170,7 +172,7 @@
 </head>
 
 <body>
-    <div class="version">v 3.0</div>
+    <div class="version">v 3.1</div>
 
     <!-- Home Page -->
     <div id="homePage" class="container page">
@@ -194,43 +196,10 @@
         <div class="section">
             <h2>Stock Transfer</h2>
             <div class="location-container">
-                <select id="locationFrom" class="location-select">
-                    <option value="">Select Location From</option>
-                    <option value="جاردنز 101">جاردنز 101</option>
-                    <option value="تلال السخنة 102">تلال السخنة 102</option>
-                    <option value="ستيلا 103">ستيلا 103</option>
-                    <option value="الدبلو 104">الدبلو 104</option>
-                    <option value="تلال الساحل 105">تلال الساحل 105</option>
-                    <option value="سوان لك 106">سوان لك 106</option>
-                    <option value="كاسكادا 107">كاسكادا 107</option>
-                    <option value="لافيستا باي 108">لافيستا باي 108</option>
-                    <option value="راس الحكمة 109">راس الحكمة 109</option>
-                    <option value="لازوردي 110">لازوردي 110</option>
-                    <option value="النادي 111">النادي 111</option>
-                    <option value="زايد 112">زايد 112</option>
-                    <option value="القطامية 115">القطامية 115</option>
-                    <option value="مخزن بلبيس 201">مخزن بلبيس 201</option>
-                    <option value="مخزن الساحل 202">مخزن الساحل 202</option>
-                </select>
-                <select id="locationTo" class="location-select">
-                    <option value="">Select Location To</option>
-                    <option value="جاردنز 101">جاردنز 101</option>
-                    <option value="تلال السخنة 102">تلال السخنة 102</option>
-                    <option value="ستيلا 103">ستيلا 103</option>
-                    <option value="الدبلو 104">الدبلو 104</option>
-                    <option value="تلال الساحل 105">تلال الساحل 105</option>
-                    <option value="سوان لك 106">سوان لك 106</option>
-                    <option value="كاسكادا 107">كاسكادا 107</option>
-                    <option value="لافيستا باي 108">لافيستا باي 108</option>
-                    <option value="راس الحكمة 109">راس الحكمة 109</option>
-                    <option value="لازوردي 110">لازوردي 110</option>
-                    <option value="النادي 111">النادي 111</option>
-                    <option value="زايد 112">زايد 112</option>
-                    <option value="القطامية 115">القطامية 115</option>
-                    <option value="مخزن بلبيس 201">مخزن بلبيس 201</option>
-                    <option value="مخزن الساحل 202">مخزن الساحل 202</option>
-                </select>
+                <select id="locationFrom" class="location-select"></select>
+                <select id="locationTo" class="location-select"></select>
             </div>
+            <p>Requires an Excel file with columns: <strong>code</strong>, <strong>quantity</strong></p>
             <input type="file" id="quantityFile" accept=".xlsx">
             <button id="uploadQuantityButton">Upload Quantity File</button>
             <button id="clearQuantity">Clear Quantity</button>
@@ -246,7 +215,7 @@
             <span class="subtitle">Barcode Validator & Data Retriever</span>
         </h1>
         <div class="section">
-            <p>Upload an Excel file with a single column named "Barcode" to validate them and retrieve product info.</p>
+            <p>Requires an Excel file with a column named: <strong>barcode</strong></p>
             <input type="file" id="barcodeFile" accept=".xlsx">
             <button id="uploadBarcodeButton">Upload Barcode File</button>
             <button id="clearBarcodes">Clear Barcodes</button>
@@ -259,16 +228,35 @@
         let databaseData = null;
         let quantityData = null;
         let barcodeData = null;
+        let activePageId = 'homePage';
         const googleSheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQNrRFFRPe_jrOrDZM58gRqxfsA0deD60_q2jkA7XJRRfJQ7IiBdIqNDN7JdMawjw/pub?output=csv';
 
+        const locations = [
+            { id: "جاردنز 101", text: "جاردنز 101" },
+            { id: "تلال السخنة 102", text: "تلال السخنة 102" },
+            { id: "ستيلا 103", text: "ستيلا 103" },
+            { id: "الدبلو 104", text: "الدبلو 104" },
+            { id: "تلال الساحل 105", text: "تلال الساحل 105" },
+            { id: "سوان لك 106", text: "سوان لك 106" },
+            { id: "كاسكادا 107", text: "كاسكادا 107" },
+            { id: "لافيستا باي 108", text: "لافيستا باي 108" },
+            { id: "راس الحكمة 109", text: "راس الحكمة 109" },
+            { id: "لازوردي 110", text: "لازوردي 110" },
+            { id: "النادي 111", text: "النادي 111" },
+            { id: "زايد 112", text: "زايد 112" },
+            { id: "القطامية 115", text: "القطامية 115" },
+            { id: "مخزن بلبيس 201", text: "مخزن بلبيس 201" },
+            { id: "مخزن الساحل 202", text: "مخزن الساحل 202" },
+        ];
+
         document.addEventListener('DOMContentLoaded', function() {
-            // Initial setup
             showPage('homePage');
             fetchProductDatabase();
-            
-            // Initialize Select2 for location dropdowns
-            $('#locationFrom, #locationTo').select2();
 
+            // Populate and Initialize Select2 for location dropdowns
+            const locationOptions = [{ id: '', text: 'Select Location' }, ...locations];
+            $('#locationFrom, #locationTo').select2({ data: locationOptions });
+            
             // --- Navigation Listeners ---
             document.getElementById('goToTransferBtn').addEventListener('click', () => showPage('stockTransferPage'));
             document.getElementById('goToValidatorBtn').addEventListener('click', () => showPage('barcodeValidatorPage'));
@@ -277,13 +265,11 @@
             });
 
             // --- Functional Listeners ---
-            // Stock Transfer
             document.getElementById('uploadQuantityButton').addEventListener('click', () => document.getElementById('quantityFile').click());
             document.getElementById('quantityFile').addEventListener('change', handleQuantityUpload);
             document.getElementById('clearQuantity').addEventListener('click', clearQuantity);
             document.getElementById('processTransferButton').addEventListener('click', processTransferData);
 
-            // Barcode Validator
             document.getElementById('uploadBarcodeButton').addEventListener('click', () => document.getElementById('barcodeFile').click());
             document.getElementById('barcodeFile').addEventListener('change', handleBarcodeUpload);
             document.getElementById('clearBarcodes').addEventListener('click', clearBarcodes);
@@ -291,12 +277,17 @@
         });
 
         function showPage(pageId) {
+            activePageId = pageId;
             document.querySelectorAll('.page').forEach(page => page.style.display = 'none');
             const newPage = document.getElementById(pageId);
             if (newPage) {
                 newPage.style.display = 'block';
+                // Clear any old messages from the page we're navigating to
+                showMessage("", "info"); 
             }
         }
+        
+        // --- CORE LOGIC ---
 
         async function fetchProductDatabase() {
             showMessage('Fetching product database from Google Sheet...', 'info');
@@ -305,25 +296,20 @@
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const csvText = await response.text();
                 parseCSVDatabase(csvText);
-                showMessage('Product database loaded successfully! Ready to use.', true);
-                updateButtonStates();
+                showMessage('Product database loaded successfully! Ready to use.', 'success');
             } catch (error) {
-                showMessage(`Error fetching product database: ${error.message}. Please check the Google Sheet link and refresh.`);
-                console.error("Fetch error:", error);
+                showMessage(`Error fetching product database: ${error.message}. Please check Google Sheet and connection.`);
             }
         }
 
         function parseCSVDatabase(csvText) {
             const rows = csvText.trim().split('\n');
             databaseData = rows.map(row => row.split(',').map(cell => cell.trim()));
-
             if (!databaseData || databaseData.length === 0) throw new Error("CSV data is empty or invalid.");
-
             const headers = databaseData[0].map(h => h.toLowerCase());
             const requiredDbHeaders = ['code', 'barcode', 'name'];
-            const missingDbHeaders = requiredDbHeaders.filter(header => !headers.includes(header));
-            if (missingDbHeaders.length > 0) {
-                 throw new Error(`Missing required headers in Google Sheet: ${missingDbHeaders.join(', ')}. Expected: code, barcode, name.`);
+            if (requiredDbHeaders.some(h => !headers.includes(h))) {
+                 throw new Error(`Google Sheet is missing a required header. It must contain: code, barcode, name.`);
             }
         }
 
@@ -344,36 +330,40 @@
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
                     const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                    if (!sheet) throw new Error(`Sheet not found in the uploaded file.`);
-                    const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+                    if (!sheet) throw new Error(`No sheets found in the uploaded file.`);
+                    
+                    const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
                     if (jsonData.length <= 1) throw new Error(`The ${sheetNameFriendly} sheet is empty or has no data rows.`);
+                    
                     const headers = jsonData[0].map(header => String(header).toLowerCase().trim());
                     const missingHeaders = requiredHeaders.filter(header => !headers.includes(header));
-                    if (missingHeaders.length > 0) throw new Error(`Missing required headers: ${missingHeaders.join(', ')} in "${sheetNameFriendly}" sheet.`);
+                    if (missingHeaders.length > 0) throw new Error(`Missing required column(s): ${missingHeaders.join(', ')}.`);
+                    
                     window[dataVariableKey] = jsonData;
-                    showMessage(`${sheetNameFriendly} file uploaded successfully!`, true);
+                    showMessage(`${sheetNameFriendly} file uploaded successfully! Ready to process.`, 'success');
                 } catch (error) {
-                    showMessage(`Error uploading ${sheetNameFriendly} file: ${error.message}`);
-                    window[dataVariableKey] = null;
+                    showMessage(`Upload Error: ${error.message}`, 'error');
+                    window[dataVariableKey] = null; // IMPORTANT: Reset data on failure
                 } finally {
+                    // Always update button states after an upload attempt
                     updateButtonStates();
+                    // Clear the file input so the user can re-select the same file after fixing it
+                    event.target.value = '';
                 }
             };
-            reader.onerror = (error) => showMessage(`Error reading ${sheetNameFriendly} file: ${error.message}`);
+            reader.onerror = () => showMessage(`Error reading file. It may be corrupt or in use.`);
             reader.readAsArrayBuffer(file);
         }
 
         function clearQuantity() {
-            document.getElementById('quantityFile').value = '';
             quantityData = null;
-            showMessage('Quantity data cleared!', true);
+            showMessage('Quantity data cleared.', 'info');
             updateButtonStates();
         }
 
         function clearBarcodes() {
-            document.getElementById('barcodeFile').value = '';
             barcodeData = null;
-            showMessage('Barcode data cleared!', true);
+            showMessage('Barcode data cleared.', 'info');
             updateButtonStates();
         }
 
@@ -383,11 +373,12 @@
         }
 
         function processTransferData() {
+            // ... (Processing logic is unchanged)
             const locationFromValue = document.getElementById('locationFrom').value;
             const locationToValue = document.getElementById('locationTo').value;
             if (!locationFromValue || !locationToValue) return showMessage('Please select both "Location From" and "Location To".');
-            if (!quantityData || quantityData.length <= 1) return showMessage('Please upload valid quantity data first.');
-            // (The rest of the function is identical to the previous version and is omitted for brevity)
+            if (!quantityData) return showMessage('Please upload valid quantity data first.');
+            
             try {
                 const results = [], unmatched = [];
                 const dbHeaders = databaseData[0].map(h => String(h).toLowerCase().trim());
@@ -397,7 +388,7 @@
                 for (let i = 1; i < quantityData.length; i++) {
                     const codeToFind = String(quantityData[i][codeColumnQuantity]).trim();
                     const quantity = quantityData[i][quantityColumnQuantity];
-                    if (!codeToFind || quantity === undefined || quantity === null) continue;
+                    if (!codeToFind || quantity === undefined || quantity === null || quantity === '') continue;
                     let found = false;
                     for (let j = 1; j < databaseData.length; j++) {
                         const dbRow = databaseData[j];
@@ -420,11 +411,12 @@
                 }
                 const formattedDate = new Date().toISOString().slice(0, 10);
                 XLSX.writeFile(wb, `من ${locationFromValue} الى ${locationToValue} ${formattedDate}.xlsx`);
-                showMessage('Transfer Data Processed and Results Downloaded!', true);
+                showMessage('Transfer Data Processed and Results Downloaded!', 'success');
             } catch (error) { showMessage(`Error processing transfer data: ${error.message}`); console.error("Processing error:", error); }
         }
-
+        
         function validateEAN(barcode) {
+             // ... (Validation logic is unchanged)
             const code = String(barcode).trim();
             if (!/^\d+$/.test(code)) return 'Invalid Characters';
             if (code.length !== 13) return 'Invalid Length';
@@ -435,8 +427,8 @@
         }
 
         function processAndValidateBarcodes() {
-            if (!barcodeData || barcodeData.length <= 1) return showMessage('Please upload a valid barcode file first.');
-            // (The rest of the function is identical to the previous version and is omitted for brevity)
+            // ... (Processing logic is unchanged)
+            if (!barcodeData) return showMessage('Please upload a valid barcode file first.');
             try {
                 const results = [];
                 const dbHeaders = databaseData[0].map(h => String(h).toLowerCase().trim());
@@ -464,19 +456,23 @@
                 XLSX.utils.book_append_sheet(wb, resultsSheet, "Validation Results");
                 const formattedDate = new Date().toISOString().slice(0, 10);
                 XLSX.writeFile(wb, `Barcode_Validation_Results_${formattedDate}.xlsx`);
-                showMessage('Barcodes Validated and Results Downloaded!', true);
+                showMessage('Barcodes Validated and Results Downloaded!', 'success');
             } catch (error) { showMessage(`Error processing barcodes: ${error.message}`); console.error("Barcode processing error:", error); }
         }
 
-        function showMessage(message, typeOrSuccess = false) {
-            document.querySelectorAll('.message-display').forEach(div => {
-                div.innerText = message;
-                if (typeof typeOrSuccess === 'string') {
-                    div.className = `message-display ${typeOrSuccess}`;
-                } else {
-                    div.className = typeOrSuccess ? 'message-display success' : 'message-display';
-                }
-            });
+        function showMessage(message, type = 'error') {
+            const currentPage = document.getElementById(activePageId);
+            if (!currentPage) return;
+            const messageDiv = currentPage.querySelector('.message-display');
+            if (!messageDiv) return;
+
+            messageDiv.innerText = message;
+            messageDiv.className = 'message-display'; // Reset classes
+            if (type === 'success') {
+                messageDiv.classList.add('success');
+            } else if (type === 'info') {
+                messageDiv.classList.add('info');
+            }
         }
     </script>
 </body>
