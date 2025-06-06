@@ -11,49 +11,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f0f8ff;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            color: #424242;
-        }
-        .container {
-            background-color: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            width: 85%;
-            max-width: 900px;
-            text-align: center;
-            margin-top: 20px;
-            margin-bottom: 20px;
-            position: relative;
-        }
+        body { font-family: 'Arial', sans-serif; background-color: #f0f8ff; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; color: #424242; }
+        .container { background-color: #fff; border-radius: 12px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 30px; width: 85%; max-width: 900px; text-align: center; margin-top: 20px; margin-bottom: 20px; position: relative; }
         .page { display: none; }
         h1 { color: #1e88e5; margin-bottom: 20px; }
         #kero-assistance { font-size: 2em; }
         .subtitle { font-size: 1.5em; font-style: italic; }
-        .section {
-            margin-bottom: 25px;
-            padding: 20px;
-            border: 1px solid #bbdefb;
-            border-radius: 8px;
-            background-color: #e3f2fd;
-        }
-        .instructions {
-            font-size: 0.9em;
-            color: #555;
-            background-color: #fffde7;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px dashed #fbc02d;
-            margin-bottom: 15px;
-        }
+        .section { margin-bottom: 25px; padding: 20px; border: 1px solid #bbdefb; border-radius: 8px; background-color: #e3f2fd; }
+        .instructions { font-size: 0.9em; color: #555; background-color: #fffde7; padding: 10px; border-radius: 5px; border: 1px dashed #fbc02d; margin-bottom: 15px; }
         .location-container { display: flex; justify-content: space-around; align-items: center; margin-bottom: 15px; }
         .location-container select { width: 45%; padding: 10px; border: 1px solid #bbdefb; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
         input[type="file"] { display: none; }
@@ -66,7 +31,7 @@
         .home-button:hover { background-color: #1976d2; }
         .home-nav-button { background-color: #607d8b; position: absolute; top: 20px; left: 20px; }
         .home-nav-button:hover { background-color: #455a64; }
-        .message-display { margin-top: 20px; font-weight: bold; color: #d32f2f; min-height: 1.2em; padding: 5px; border-radius: 4px; }
+        .message-display { margin-top: 20px; font-weight: bold; min-height: 1.2em; padding: 8px; border-radius: 4px; }
         .message-display.success { color: #2e7d32; background-color: #e8f5e9; }
         .message-display.info { color: #1976d2; background-color: #e3f2fd; }
         .message-display.error { color: #c62828; background-color: #ffebee; }
@@ -77,7 +42,7 @@
 </head>
 
 <body>
-    <div class="version">v 4.0 - Debug Ready</div>
+    <div class="version">v 5.0 - Unrestricted Buttons</div>
 
     <!-- Home Page -->
     <div id="homePage" class="container page">
@@ -178,9 +143,11 @@
             const newPage = document.getElementById(pageId);
             if (newPage) {
                 newPage.style.display = 'block';
-                // Clear message display on the target page before showing it
                 const msgDiv = newPage.querySelector('.message-display');
-                if (msgDiv) msgDiv.innerText = '';
+                if (msgDiv) {
+                     msgDiv.innerText = '';
+                     msgDiv.className = 'message-display';
+                }
             }
         }
         
@@ -195,9 +162,11 @@
                 parseCSVDatabase(csvText);
                 console.log("Product database fetched and parsed successfully.");
                 showMessage('Product database loaded successfully! Ready to use.', 'success');
+                // *** CHANGE: Enable buttons now that the core data is loaded ***
+                updateButtonStates();
             } catch (error) {
                 console.error("CRITICAL: Failed to fetch product database.", error);
-                showMessage(`Error fetching product database: ${error.message}. App cannot function without it.`, 'error');
+                showMessage(`Error fetching product database: ${error.message}. App cannot function.`, 'error');
             }
         }
 
@@ -220,14 +189,10 @@
             handleFileUpload(event, 'barcodeData', 'Barcode', ['barcode']);
         }
 
-        // MODIFIED: This function now has extensive logging and clearer error handling.
         function handleFileUpload(event, dataVariableKey, sheetNameFriendly, requiredHeaders) {
             console.log(`--- Starting File Upload for: ${sheetNameFriendly} ---`);
             const file = event.target.files[0];
-            if (!file) {
-                console.log("No file selected.");
-                return;
-            }
+            if (!file) { return; }
             console.log(`File selected: ${file.name}`);
 
             const reader = new FileReader();
@@ -236,39 +201,30 @@
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
 
-                    if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
-                        throw new Error("The selected Excel file contains no sheets.");
-                    }
+                    if (!workbook.SheetNames || workbook.SheetNames.length === 0) { throw new Error("Excel file contains no sheets."); }
                     
                     const firstSheetName = workbook.SheetNames[0];
-                    console.log(`Reading data from the first sheet, named: "${firstSheetName}"`);
+                    console.log(`Reading data from the first sheet: "${firstSheetName}"`);
                     const sheet = workbook.Sheets[firstSheetName];
                     
                     const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
-                    if (jsonData.length <= 1) {
-                        throw new Error(`The first sheet ("${firstSheetName}") is empty or has no data rows.`);
-                    }
+                    if (jsonData.length <= 1) { throw new Error(`The first sheet ("${firstSheetName}") is empty or has no data rows.`); }
                     
                     const headers = jsonData[0].map(header => String(header).toLowerCase().trim());
-                    console.log("Found headers in file:", headers);
                     const missingHeaders = requiredHeaders.filter(header => !headers.includes(header));
 
-                    if (missingHeaders.length > 0) {
-                        throw new Error(`The first sheet is missing required column(s): [${missingHeaders.join(', ')}]. Please check spelling.`);
-                    }
+                    if (missingHeaders.length > 0) { throw new Error(`The first sheet is missing required column(s): [${missingHeaders.join(', ')}].`); }
                     
-                    console.log("Header validation successful.");
-                    window[dataVariableKey] = jsonData; // Assign data to global variable
+                    window[dataVariableKey] = jsonData;
                     showMessage(`${sheetNameFriendly} file uploaded successfully! Ready to process.`, 'success');
                     console.log(`SUCCESS: ${dataVariableKey} now contains ${jsonData.length - 1} data rows.`);
 
                 } catch (error) {
                     console.error("File upload failed:", error.message);
                     showMessage(`Upload Error: ${error.message}`, 'error');
-                    window[dataVariableKey] = null; // IMPORTANT: Reset data on any failure
+                    window[dataVariableKey] = null;
                 } finally {
-                    updateButtonStates();
-                    event.target.value = ''; // Allow re-uploading the same file after fixing it
+                    event.target.value = '';
                     console.log("--- Finished File Upload Attempt ---");
                 }
             };
@@ -282,35 +238,44 @@
         function clearQuantity() {
             quantityData = null;
             console.log("Quantity data cleared.");
-            showMessage('Quantity data cleared.', 'info');
-            updateButtonStates();
+            showMessage('Quantity file has been cleared.', 'info');
         }
 
         function clearBarcodes() {
             barcodeData = null;
             console.log("Barcode data cleared.");
-            showMessage('Barcode data cleared.', 'info');
-            updateButtonStates();
+            showMessage('Barcode file has been cleared.', 'info');
         }
 
+        // *** CHANGE: This function now just enables the buttons once the database loads. ***
         function updateButtonStates() {
-            const transferBtnDisabled = !(databaseData && quantityData);
-            const validatorBtnDisabled = !(databaseData && barcodeData);
-            document.getElementById('processTransferButton').disabled = transferBtnDisabled;
-            document.getElementById('validateDownloadButton').disabled = validatorBtnDisabled;
-            console.log(`Button states updated. Transfer enabled: ${!transferBtnDisabled}, Validator enabled: ${!validatorBtnDisabled}`);
+            if (databaseData) {
+                document.getElementById('processTransferButton').disabled = false;
+                document.getElementById('validateDownloadButton').disabled = false;
+                console.log("Main process buttons have been enabled.");
+            }
         }
-
-        // --- DATA PROCESSING FUNCTIONS (Unchanged logic, added logging) ---
+        
+        // *** CHANGE: Moved validation checks inside the function. ***
         function processTransferData() {
             console.log("Starting 'Process Transfer Data'...");
+
+            // --- VALIDATION CHECKS AT THE START ---
+            if (!databaseData) return showMessage('Error: The main product database has not loaded. Please refresh.', 'error');
+            
             const locationFromValue = document.getElementById('locationFrom').value;
             const locationToValue = document.getElementById('locationTo').value;
-            if (!locationFromValue || !locationToValue) return showMessage('Please select both "Location From" and "Location To".', 'error');
-            if (!quantityData) return showMessage('Please upload valid quantity data first.', 'error');
+            if (!locationFromValue || !locationToValue) {
+                return showMessage('Error: Please select both "Location From" and "Location To".', 'error');
+            }
+            
+            if (!quantityData) {
+                return showMessage('Error: Please upload a Quantity file before processing.', 'error');
+            }
+            // --- END OF VALIDATION ---
             
             try {
-                // Processing logic remains the same...
+                // (Processing logic is unchanged)
                 const results = [], unmatched = [];
                 const dbHeaders = databaseData[0].map(h => String(h).toLowerCase().trim());
                 const codeColumnDb = dbHeaders.indexOf('code'), barcodeColumnDb = dbHeaders.indexOf('barcode'), nameColumnDb = dbHeaders.indexOf('name');
@@ -343,7 +308,7 @@
                 }
                 const formattedDate = new Date().toISOString().slice(0, 10);
                 XLSX.writeFile(wb, `من ${locationFromValue} الى ${locationToValue} ${formattedDate}.xlsx`);
-                showMessage('Transfer Data Processed and Results Downloaded!', 'success');
+                showMessage('Success! Transfer data processed and results downloaded.', 'success');
             } catch (error) { console.error("Error during transfer processing:", error); showMessage(`Error processing transfer data: ${error.message}`, 'error'); }
         }
         
@@ -351,11 +316,20 @@
             const code = String(barcode).trim(); if (!/^\d+$/.test(code)) return 'Invalid Characters'; if (code.length !== 13) return 'Invalid Length'; let sum = 0; for (let i = 0; i < 12; i++) { sum += (i % 2 === 0) ? parseInt(code[i]) : parseInt(code[i]) * 3; } const calculatedCheckDigit = (10 - (sum % 10)) % 10; return (calculatedCheckDigit === parseInt(code[12])) ? 'Valid' : 'Invalid Checksum';
         }
 
+        // *** CHANGE: Moved validation checks inside the function. ***
         function processAndValidateBarcodes() {
             console.log("Starting 'Process and Validate Barcodes'...");
-            if (!barcodeData) return showMessage('Please upload a valid barcode file first.', 'error');
+            
+            // --- VALIDATION CHECKS AT THE START ---
+            if (!databaseData) return showMessage('Error: The main product database has not loaded. Please refresh.', 'error');
+            
+            if (!barcodeData) {
+                return showMessage('Error: Please upload a Barcode file before processing.', 'error');
+            }
+            // --- END OF VALIDATION ---
+
             try {
-                // Processing logic remains the same...
+                // (Processing logic is unchanged)
                 const results = [];
                 const dbHeaders = databaseData[0].map(h => String(h).toLowerCase().trim());
                 const codeColumnDb = dbHeaders.indexOf('code'), barcodeColumnDb = dbHeaders.indexOf('barcode'), nameColumnDb = dbHeaders.indexOf('name');
@@ -383,24 +357,17 @@
                 XLSX.utils.book_append_sheet(wb, resultsSheet, "Validation Results");
                 const formattedDate = new Date().toISOString().slice(0, 10);
                 XLSX.writeFile(wb, `Barcode_Validation_Results_${formattedDate}.xlsx`);
-                showMessage('Barcodes Validated and Results Downloaded!', 'success');
+                showMessage('Success! Barcodes validated and results downloaded.', 'success');
             } catch (error) { console.error("Error during barcode validation:", error); showMessage(`Error processing barcodes: ${error.message}`, 'error'); }
         }
 
-        // MODIFIED: This function now targets the active page's message display.
         function showMessage(message, type = 'info') {
             const currentPage = document.getElementById(activePageId);
-            if (!currentPage) {
-                 // Fallback for messages when no page is active (e.g., initial load)
-                 const homeMsgDiv = document.querySelector('#homePage .message-display');
-                 if (homeMsgDiv) homeMsgDiv.innerText = message;
-                 return;
-            }
-            const messageDiv = currentPage.querySelector('.message-display');
-            if (!messageDiv) return;
+            const msgDiv = currentPage ? currentPage.querySelector('.message-display') : document.querySelector('#homePage .message-display');
+            if (!msgDiv) return;
 
-            messageDiv.innerText = message;
-            messageDiv.className = 'message-display'; // Reset
+            msgDiv.innerText = message;
+            msgDiv.className = 'message-display'; // Reset
             if (type === 'success') messageDiv.classList.add('success');
             else if (type === 'error') messageDiv.classList.add('error');
             else if (type === 'info') messageDiv.classList.add('info');
