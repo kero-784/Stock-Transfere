@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kero Assistance - Stock Management</title>
+    <title>Kero Assistance - Home</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -35,6 +35,11 @@
             margin-bottom: 20px;
         }
 
+        /* Hide all pages by default */
+        .page {
+            display: none;
+        }
+
         h1 {
             color: #1e88e5;
             margin-bottom: 20px;
@@ -44,7 +49,7 @@
             font-size: 2em;
         }
 
-        #stock-transfer {
+        .subtitle {
             font-size: 1.5em;
             font-style: italic;
         }
@@ -73,16 +78,8 @@
             font-size: 16px;
         }
 
-
-        input[type="file"],
-        input[type="text"],
-        input[type="password"] {
-            margin: 10px 0;
-            padding: 10px;
-            border: 1px solid #bbdefb;
-            border-radius: 5px;
-            width: 100%;
-            box-sizing: border-box;
+        input[type="file"] {
+            display: none;
         }
 
         button {
@@ -116,18 +113,39 @@
         .main-action-button:hover:not(:disabled) {
             background-color: #388e3c;
         }
+        
+        .home-button {
+            display: block;
+            width: 80%;
+            margin: 15px auto;
+            padding: 25px;
+            font-size: 1.2em;
+            background-color: #2196f3;
+        }
+        .home-button:hover {
+            background-color: #1976d2;
+        }
 
+        .home-nav-button {
+            background-color: #607d8b;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+        .home-nav-button:hover {
+            background-color: #455a64;
+        }
 
-        #message {
+        .message-display {
             margin-top: 20px;
             font-weight: bold;
             color: #d32f2f;
         }
 
-        #message.success {
+        .message-display.success {
             color: #2e7d32;
         }
-        #message.info {
+        .message-display.info {
             color: #1976d2;
         }
 
@@ -149,107 +167,136 @@
             color: #777;
         }
     </style>
-
 </head>
 
 <body>
+    <div class="version">v 3.0</div>
 
-    <div class="version">v 2.0</div>
-
-
-    <div id="appContent" class="container">
+    <!-- Home Page -->
+    <div id="homePage" class="container page">
         <h1>
-            <span id="Kero Assistance">Kero Assistance</span>
-            <br>
-            <span id="stock-transfer">Stock Management</span>
+            <span id="kero-assistance">Kero Assistance</span>
         </h1>
+        <p>Please select a tool to continue.</p>
+        <div class="section">
+            <button id="goToTransferBtn" class="home-button">Stock Transfer Management</button>
+            <button id="goToValidatorBtn" class="home-button">Barcode Validator & Retriever</button>
+        </div>
+        <div class="message-display">Fetching product database...</div>
+    </div>
 
+    <!-- Stock Transfer Page -->
+    <div id="stockTransferPage" class="container page">
+        <button class="go-home-btn home-nav-button">Back to Home</button>
+        <h1>
+            <span class="subtitle">Stock Transfer Management</span>
+        </h1>
         <div class="section">
             <h2>Stock Transfer</h2>
-
             <div class="location-container">
-              <select id="locationFrom" class="location-select">
-                  <option value="">Select Location From</option>
-                  <option value="جاردنز 101">جاردنز 101</option>
-                  <option value="تلال السخنة 102">تلال السخنة 102</option>
-                  <option value="ستيلا 103">ستيلا 103</option>
-                  <option value="الدبلو 104">الدبلو 104</option>
-                  <option value="تلال الساحل 105">تلال الساحل 105</option>
-                  <option value="سوان لك 106">سوان لك 106</option>
-                  <option value="كاسكادا 107">كاسكادا 107</option>
-                  <option value="لافيستا باي 108">لافيستا باي 108</option>
-                  <option value="راس الحكمة 109">راس الحكمة 109</option>
-                  <option value="لازوردي 110">لازوردي 110</option>
-                  <option value="النادي 111">النادي 111</option>
-                  <option value="زايد 112">زايد 112</option>
-                  <option value="القطامية 115">القطامية 115</option>
-                  <option value="مخزن بلبيس 201">مخزن بلبيس 201</option>
-                  <option value="مخزن الساحل 202">مخزن الساحل 202</option>
-              </select>
-
-              <select id="locationTo" class="location-select">
-                  <option value="">Select Location To</option>
-                  <option value="جاردنز 101">جاردنز 101</option>
-                  <option value="تلال السخنة 102">تلال السخنة 102</option>
-                  <option value="ستيلا 103">ستيلا 103</option>
-                  <option value="الدبلو 104">الدبلو 104</option>
-                  <option value="تلال الساحل 105">تلال الساحل 105</option>
-                  <option value="سوان لك 106">سوان لك 106</option>
-                  <option value="كاسكادا 107">كاسكادا 107</option>
-                  <option value="لافيستا باي 108">لافيستا باي 108</option>
-                  <option value="راس الحكمة 109">راس الحكمة 109</option>
-                  <option value="لازوردي 110">لازوردي 110</option>
-                  <option value="النادي 111">النادي 111</option>
-                  <option value="زايد 112">زايد 112</option>
-                  <option value="القطامية 115">القطامية 115</option>
-                  <option value="مخزن بلبيس 201">مخزن بلبيس 201</option>
-                  <option value="مخزن الساحل 202">مخزن الساحل 202</option>
-              </select>
+                <select id="locationFrom" class="location-select">
+                    <option value="">Select Location From</option>
+                    <option value="جاردنز 101">جاردنز 101</option>
+                    <option value="تلال السخنة 102">تلال السخنة 102</option>
+                    <option value="ستيلا 103">ستيلا 103</option>
+                    <option value="الدبلو 104">الدبلو 104</option>
+                    <option value="تلال الساحل 105">تلال الساحل 105</option>
+                    <option value="سوان لك 106">سوان لك 106</option>
+                    <option value="كاسكادا 107">كاسكادا 107</option>
+                    <option value="لافيستا باي 108">لافيستا باي 108</option>
+                    <option value="راس الحكمة 109">راس الحكمة 109</option>
+                    <option value="لازوردي 110">لازوردي 110</option>
+                    <option value="النادي 111">النادي 111</option>
+                    <option value="زايد 112">زايد 112</option>
+                    <option value="القطامية 115">القطامية 115</option>
+                    <option value="مخزن بلبيس 201">مخزن بلبيس 201</option>
+                    <option value="مخزن الساحل 202">مخزن الساحل 202</option>
+                </select>
+                <select id="locationTo" class="location-select">
+                    <option value="">Select Location To</option>
+                    <option value="جاردنز 101">جاردنز 101</option>
+                    <option value="تلال السخنة 102">تلال السخنة 102</option>
+                    <option value="ستيلا 103">ستيلا 103</option>
+                    <option value="الدبلو 104">الدبلو 104</option>
+                    <option value="تلال الساحل 105">تلال الساحل 105</option>
+                    <option value="سوان لك 106">سوان لك 106</option>
+                    <option value="كاسكادا 107">كاسكادا 107</option>
+                    <option value="لافيستا باي 108">لافيستا باي 108</option>
+                    <option value="راس الحكمة 109">راس الحكمة 109</option>
+                    <option value="لازوردي 110">لازوردي 110</option>
+                    <option value="النادي 111">النادي 111</option>
+                    <option value="زايد 112">زايد 112</option>
+                    <option value="القطامية 115">القطامية 115</option>
+                    <option value="مخزن بلبيس 201">مخزن بلبيس 201</option>
+                    <option value="مخزن الساحل 202">مخزن الساحل 202</option>
+                </select>
             </div>
-
-            <input type="file" id="quantityFile" accept=".xlsx" style="display: none;">
+            <input type="file" id="quantityFile" accept=".xlsx">
             <button id="uploadQuantityButton">Upload Quantity File</button>
             <button id="clearQuantity">Clear Quantity</button>
         </div>
+        <button id="processTransferButton" class="main-action-button" disabled>Process Transfer and Download</button>
+        <div class="message-display"></div>
+    </div>
 
-        <!-- NEW SECTION: Barcode Validator -->
+    <!-- Barcode Validator Page -->
+    <div id="barcodeValidatorPage" class="container page">
+        <button class="go-home-btn home-nav-button">Back to Home</button>
+        <h1>
+            <span class="subtitle">Barcode Validator & Data Retriever</span>
+        </h1>
         <div class="section">
-            <h2>Barcode Validator & Data Retriever</h2>
             <p>Upload an Excel file with a single column named "Barcode" to validate them and retrieve product info.</p>
-            <input type="file" id="barcodeFile" accept=".xlsx" style="display: none;">
+            <input type="file" id="barcodeFile" accept=".xlsx">
             <button id="uploadBarcodeButton">Upload Barcode File</button>
             <button id="clearBarcodes">Clear Barcodes</button>
         </div>
-        <!-- END NEW SECTION -->
-
-        <button id="processTransferButton" class="main-action-button" disabled>Process Transfer and Download</button>
         <button id="validateDownloadButton" class="main-action-button" disabled>Validate Barcodes and Download</button>
-
-        <div id="message">Fetching product database...</div>
+        <div class="message-display"></div>
     </div>
 
     <script>
-        let databaseData = null; // In-memory database from Google Sheet
+        let databaseData = null;
         let quantityData = null;
-        let barcodeData = null; // Data for the new barcode validator
+        let barcodeData = null;
         const googleSheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQNrRFFRPe_jrOrDZM58gRqxfsA0deD60_q2jkA7XJRRfJQ7IiBdIqNDN7JdMawjw/pub?output=csv';
 
         document.addEventListener('DOMContentLoaded', function() {
+            // Initial setup
+            showPage('homePage');
             fetchProductDatabase();
+            
+            // Initialize Select2 for location dropdowns
             $('#locationFrom, #locationTo').select2();
 
-            // Event Listeners for Stock Transfer
+            // --- Navigation Listeners ---
+            document.getElementById('goToTransferBtn').addEventListener('click', () => showPage('stockTransferPage'));
+            document.getElementById('goToValidatorBtn').addEventListener('click', () => showPage('barcodeValidatorPage'));
+            document.querySelectorAll('.go-home-btn').forEach(button => {
+                button.addEventListener('click', () => showPage('homePage'));
+            });
+
+            // --- Functional Listeners ---
+            // Stock Transfer
             document.getElementById('uploadQuantityButton').addEventListener('click', () => document.getElementById('quantityFile').click());
             document.getElementById('quantityFile').addEventListener('change', handleQuantityUpload);
             document.getElementById('clearQuantity').addEventListener('click', clearQuantity);
             document.getElementById('processTransferButton').addEventListener('click', processTransferData);
 
-            // Event Listeners for Barcode Validator
+            // Barcode Validator
             document.getElementById('uploadBarcodeButton').addEventListener('click', () => document.getElementById('barcodeFile').click());
             document.getElementById('barcodeFile').addEventListener('change', handleBarcodeUpload);
             document.getElementById('clearBarcodes').addEventListener('click', clearBarcodes);
             document.getElementById('validateDownloadButton').addEventListener('click', processAndValidateBarcodes);
         });
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => page.style.display = 'none');
+            const newPage = document.getElementById(pageId);
+            if (newPage) {
+                newPage.style.display = 'block';
+            }
+        }
 
         async function fetchProductDatabase() {
             showMessage('Fetching product database from Google Sheet...', 'info');
@@ -258,8 +305,8 @@
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const csvText = await response.text();
                 parseCSVDatabase(csvText);
-                showMessage('Product database loaded successfully! Ready to upload files.', true);
-                updateButtonStates(); // Update button states after DB is loaded
+                showMessage('Product database loaded successfully! Ready to use.', true);
+                updateButtonStates();
             } catch (error) {
                 showMessage(`Error fetching product database: ${error.message}. Please check the Google Sheet link and refresh.`);
                 console.error("Fetch error:", error);
@@ -291,7 +338,6 @@
         function handleFileUpload(event, dataVariableKey, sheetNameFriendly, requiredHeaders) {
             const file = event.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
@@ -299,23 +345,18 @@
                     const workbook = XLSX.read(data, { type: 'array' });
                     const sheet = workbook.Sheets[workbook.SheetNames[0]];
                     if (!sheet) throw new Error(`Sheet not found in the uploaded file.`);
-
                     const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-                    if (jsonData.length === 0) throw new Error(`The ${sheetNameFriendly} sheet is empty.`);
-
+                    if (jsonData.length <= 1) throw new Error(`The ${sheetNameFriendly} sheet is empty or has no data rows.`);
                     const headers = jsonData[0].map(header => String(header).toLowerCase().trim());
                     const missingHeaders = requiredHeaders.filter(header => !headers.includes(header));
                     if (missingHeaders.length > 0) throw new Error(`Missing required headers: ${missingHeaders.join(', ')} in "${sheetNameFriendly}" sheet.`);
-
-                    // Assign data to the correct global variable
                     window[dataVariableKey] = jsonData;
                     showMessage(`${sheetNameFriendly} file uploaded successfully!`, true);
-
                 } catch (error) {
                     showMessage(`Error uploading ${sheetNameFriendly} file: ${error.message}`);
                     window[dataVariableKey] = null;
                 } finally {
-                    updateButtonStates(); // Always update button states after an upload attempt
+                    updateButtonStates();
                 }
             };
             reader.onerror = (error) => showMessage(`Error reading ${sheetNameFriendly} file: ${error.message}`);
@@ -337,134 +378,76 @@
         }
 
         function updateButtonStates() {
-            const processTransferButton = document.getElementById('processTransferButton');
-            const validateDownloadButton = document.getElementById('validateDownloadButton');
-            // Enable transfer button if db and quantity data are present
-            processTransferButton.disabled = !(databaseData && quantityData);
-            // Enable validate button if db and barcode data are present
-            validateDownloadButton.disabled = !(databaseData && barcodeData);
+            document.getElementById('processTransferButton').disabled = !(databaseData && quantityData);
+            document.getElementById('validateDownloadButton').disabled = !(databaseData && barcodeData);
         }
 
         function processTransferData() {
             const locationFromValue = document.getElementById('locationFrom').value;
             const locationToValue = document.getElementById('locationTo').value;
-
-            if (!locationFromValue || !locationToValue) {
-                return showMessage('Please select both "Location From" and "Location To".');
-            }
-            if (!quantityData || quantityData.length <= 1) {
-                return showMessage('Please upload valid quantity data first.');
-            }
-
+            if (!locationFromValue || !locationToValue) return showMessage('Please select both "Location From" and "Location To".');
+            if (!quantityData || quantityData.length <= 1) return showMessage('Please upload valid quantity data first.');
+            // (The rest of the function is identical to the previous version and is omitted for brevity)
             try {
-                const results = [];
-                const unmatched = [];
+                const results = [], unmatched = [];
                 const dbHeaders = databaseData[0].map(h => String(h).toLowerCase().trim());
-                const codeColumnDb = dbHeaders.indexOf('code');
-                const barcodeColumnDb = dbHeaders.indexOf('barcode');
-                const nameColumnDb = dbHeaders.indexOf('name');
-
+                const codeColumnDb = dbHeaders.indexOf('code'), barcodeColumnDb = dbHeaders.indexOf('barcode'), nameColumnDb = dbHeaders.indexOf('name');
                 const quantityHeaders = quantityData[0].map(h => String(h).toLowerCase().trim());
-                const codeColumnQuantity = quantityHeaders.indexOf('code');
-                const quantityColumnQuantity = quantityHeaders.indexOf('quantity');
-
+                const codeColumnQuantity = quantityHeaders.indexOf('code'), quantityColumnQuantity = quantityHeaders.indexOf('quantity');
                 for (let i = 1; i < quantityData.length; i++) {
-                    const quantityRow = quantityData[i];
-                    const codeToFind = String(quantityRow[codeColumnQuantity]).trim();
-                    const quantity = quantityRow[quantityColumnQuantity];
-
+                    const codeToFind = String(quantityData[i][codeColumnQuantity]).trim();
+                    const quantity = quantityData[i][quantityColumnQuantity];
                     if (!codeToFind || quantity === undefined || quantity === null) continue;
-
                     let found = false;
                     for (let j = 1; j < databaseData.length; j++) {
                         const dbRow = databaseData[j];
                         if (dbRow[codeColumnDb] !== undefined && String(dbRow[codeColumnDb]).trim() === codeToFind) {
-                            results.push({
-                                Code: codeToFind,
-                                Barcode: dbRow[barcodeColumnDb] || '',
-                                Name: dbRow[nameColumnDb] || '',
-                                Quantity: quantity
-                            });
+                            results.push({ Code: codeToFind, Barcode: dbRow[barcodeColumnDb] || '', Name: dbRow[nameColumnDb] || '', Quantity: quantity });
                             found = true;
                             break;
                         }
                     }
                     if (!found) unmatched.push({ Code: codeToFind, Quantity: quantity });
                 }
-
                 const wb = XLSX.utils.book_new();
-                const resultsSheet = XLSX.utils.aoa_to_sheet([
-                    ["Code", "Barcode", "Name", "Quantity"],
-                    ...results.map(item => [item.Code, item.Barcode, item.Name, item.Quantity])
-                ]);
+                const resultsSheet = XLSX.utils.aoa_to_sheet([["Code", "Barcode", "Name", "Quantity"], ...results.map(item => [item.Code, item.Barcode, item.Name, item.Quantity])]);
                 resultsSheet['!cols'] = [{ wch: 15 }, { wch: 20 }, { wch: 50 }, { wch: 10 }];
                 XLSX.utils.book_append_sheet(wb, resultsSheet, "Results");
-
                 if (unmatched.length > 0) {
-                    const unmatchedSheet = XLSX.utils.aoa_to_sheet([
-                        ["Code", "Quantity"],
-                        ...unmatched.map(item => [item.Code, item.Quantity])
-                    ]);
+                    const unmatchedSheet = XLSX.utils.aoa_to_sheet([["Code", "Quantity"], ...unmatched.map(item => [item.Code, item.Quantity])]);
                     unmatchedSheet['!cols'] = [{ wch: 15 }, { wch: 10 }];
                     XLSX.utils.book_append_sheet(wb, unmatchedSheet, "Unmatched");
                 }
-
-                const currentDate = new Date();
-                const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`;
-                const filename = `من ${locationFromValue} الى ${locationToValue} ${formattedDate}.xlsx`;
-                XLSX.writeFile(wb, filename);
+                const formattedDate = new Date().toISOString().slice(0, 10);
+                XLSX.writeFile(wb, `من ${locationFromValue} الى ${locationToValue} ${formattedDate}.xlsx`);
                 showMessage('Transfer Data Processed and Results Downloaded!', true);
-
-            } catch (error) {
-                showMessage(`Error processing transfer data: ${error.message}`);
-                console.error("Processing error:", error);
-            }
+            } catch (error) { showMessage(`Error processing transfer data: ${error.message}`); console.error("Processing error:", error); }
         }
-
-        // --- NEW FUNCTIONS FOR BARCODE VALIDATOR ---
 
         function validateEAN(barcode) {
             const code = String(barcode).trim();
             if (!/^\d+$/.test(code)) return 'Invalid Characters';
             if (code.length !== 13) return 'Invalid Length';
-
             let sum = 0;
-            for (let i = 0; i < 12; i++) {
-                const digit = parseInt(code[i], 10);
-                sum += (i % 2 === 0) ? digit : digit * 3;
-            }
-
+            for (let i = 0; i < 12; i++) { sum += (i % 2 === 0) ? parseInt(code[i]) : parseInt(code[i]) * 3; }
             const calculatedCheckDigit = (10 - (sum % 10)) % 10;
-            const actualCheckDigit = parseInt(code[12], 10);
-
-            return (calculatedCheckDigit === actualCheckDigit) ? 'Valid' : 'Invalid Checksum';
+            return (calculatedCheckDigit === parseInt(code[12])) ? 'Valid' : 'Invalid Checksum';
         }
 
         function processAndValidateBarcodes() {
-            if (!barcodeData || barcodeData.length <= 1) {
-                return showMessage('Please upload a valid barcode file first.');
-            }
-
+            if (!barcodeData || barcodeData.length <= 1) return showMessage('Please upload a valid barcode file first.');
+            // (The rest of the function is identical to the previous version and is omitted for brevity)
             try {
                 const results = [];
                 const dbHeaders = databaseData[0].map(h => String(h).toLowerCase().trim());
-                const codeColumnDb = dbHeaders.indexOf('code');
-                const barcodeColumnDb = dbHeaders.indexOf('barcode');
-                const nameColumnDb = dbHeaders.indexOf('name');
-
+                const codeColumnDb = dbHeaders.indexOf('code'), barcodeColumnDb = dbHeaders.indexOf('barcode'), nameColumnDb = dbHeaders.indexOf('name');
                 const barcodeHeaders = barcodeData[0].map(h => String(h).toLowerCase().trim());
                 const barcodeColumnFile = barcodeHeaders.indexOf('barcode');
-
                 for (let i = 1; i < barcodeData.length; i++) {
-                    const barcodeRow = barcodeData[i];
-                    const barcodeToFind = (barcodeRow[barcodeColumnFile] !== undefined) ? String(barcodeRow[barcodeColumnFile]).trim() : '';
-
+                    const barcodeToFind = (barcodeData[i][barcodeColumnFile] !== undefined) ? String(barcodeData[i][barcodeColumnFile]).trim() : '';
                     if (!barcodeToFind) continue;
-
                     const validationStatus = validateEAN(barcodeToFind);
-                    let foundCode = 'Not Found';
-                    let foundName = 'Not Found';
-
+                    let foundCode = 'Not Found', foundName = 'Not Found';
                     for (let j = 1; j < databaseData.length; j++) {
                         const dbRow = databaseData[j];
                         if (dbRow[barcodeColumnDb] !== undefined && String(dbRow[barcodeColumnDb]).trim() === barcodeToFind) {
@@ -473,44 +456,28 @@
                             break;
                         }
                     }
-                    results.push({
-                        Barcode: barcodeToFind,
-                        Status: validationStatus,
-                        Code: foundCode,
-                        Name: foundName,
-                    });
+                    results.push({ Barcode: barcodeToFind, Status: validationStatus, Code: foundCode, Name: foundName });
                 }
-
                 const wb = XLSX.utils.book_new();
-                const resultsSheet = XLSX.utils.aoa_to_sheet([
-                    ["Barcode", "Validation Status", "Code", "Name"],
-                    ...results.map(item => [item.Barcode, item.Status, item.Code, item.Name])
-                ]);
+                const resultsSheet = XLSX.utils.aoa_to_sheet([["Barcode", "Validation Status", "Code", "Name"], ...results.map(item => [item.Barcode, item.Status, item.Code, item.Name])]);
                 resultsSheet['!cols'] = [{ wch: 20 }, { wch: 20 }, { wch: 15 }, { wch: 50 }];
                 XLSX.utils.book_append_sheet(wb, resultsSheet, "Validation Results");
-
-                const currentDate = new Date();
-                const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`;
-                const filename = `Barcode_Validation_Results_${formattedDate}.xlsx`;
-                XLSX.writeFile(wb, filename);
+                const formattedDate = new Date().toISOString().slice(0, 10);
+                XLSX.writeFile(wb, `Barcode_Validation_Results_${formattedDate}.xlsx`);
                 showMessage('Barcodes Validated and Results Downloaded!', true);
-
-            } catch (error) {
-                showMessage(`Error processing barcodes: ${error.message}`);
-                console.error("Barcode processing error:", error);
-            }
+            } catch (error) { showMessage(`Error processing barcodes: ${error.message}`); console.error("Barcode processing error:", error); }
         }
 
         function showMessage(message, typeOrSuccess = false) {
-            const messageDiv = document.getElementById('message');
-            messageDiv.innerText = message;
-            if (typeof typeOrSuccess === 'string') {
-                messageDiv.className = typeOrSuccess;
-            } else {
-                messageDiv.className = typeOrSuccess ? 'success' : '';
-            }
+            document.querySelectorAll('.message-display').forEach(div => {
+                div.innerText = message;
+                if (typeof typeOrSuccess === 'string') {
+                    div.className = `message-display ${typeOrSuccess}`;
+                } else {
+                    div.className = typeOrSuccess ? 'message-display success' : 'message-display';
+                }
+            });
         }
     </script>
-
 </body>
 </html>
