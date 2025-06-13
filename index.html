@@ -149,14 +149,40 @@
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
                     if (!workbook.SheetNames || workbook.SheetNames.length === 0) throw new Error("Excel file contains no sheets.");
+                    
                     const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
-                    if (jsonData.length === 0) throw new Error(`The first sheet is empty.`);
-                    const headers = Object.keys(jsonData[0]).map(h => h.toLowerCase().trim());
-                    const missingHeaders = requiredHeaders.filter(h => !headers.includes(h));
-                    if (missingHeaders.length > 0) throw new Error(`File is missing required column(s): [${missingHeaders.join(', ')}].`);
+                    const rowsAsArray = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: null });
+
+                    if (rowsAsArray.length < 2) {
+                        throw new Error(`The first sheet is empty or contains only a header.`);
+                    }
+
+                    const headerRow = rowsAsArray[0].map(h => String(h || '').toLowerCase().trim());
+                    const dataRows = rowsAsArray.slice(1);
+                    const headerMap = {};
+                    headerRow.forEach((h, i) => { headerMap[h] = i; });
+
+                    const missingHeaders = requiredHeaders.filter(h => headerMap[h] === undefined);
+                    if (missingHeaders.length > 0) {
+                        throw new Error(`File is missing required column(s): [${missingHeaders.join(', ')}].`);
+                    }
+
+                    const jsonData = dataRows.map(row => {
+                        const obj = {};
+                        requiredHeaders.forEach(header => {
+                            const cellValue = row[headerMap[header]];
+                            obj[header] = (cellValue === null || cellValue === undefined) ? "" : String(cellValue);
+                        });
+                        return obj;
+                    }).filter(obj => {
+                        return Object.values(obj).some(val => val && String(val).trim() !== "");
+                    });
+                    
+                    if (jsonData.length === 0) throw new Error(`File contains no data rows.`);
+
                     if (isQuantityFile) { quantityData = jsonData; } else { barcodeData = jsonData; }
-                    showMessage(`${friendlyName} file uploaded successfully! Ready to process.`, 'success');
+                    showMessage(`${friendlyName} file with ${jsonData.length} rows uploaded successfully! Ready to process.`, 'success');
+
                 } catch (error) {
                     showMessage(`Upload Error: ${error.message}`, 'error');
                     if (isQuantityFile) { quantityData = null; } else { barcodeData = null; }
@@ -177,12 +203,17 @@
             if (!locationFrom || !locationTo) return showMessage('Error: Please select both "From" and "To" locations.', 'error');
             const button = document.getElementById('processTransferButton');
             button.disabled = true;
-            showMessage('Processing on server... Please wait.', 'info');
+            showMessage(`Processing ${quantityData.length} items on server... Please wait.`, 'info');
             try {
                 const payloadForServer = {
                     action: 'processTransfer',
                     sheetName: GOOGLE_SHEET_NAME_TO_USE,
-                    payload: quantityData.map(row => ({ code: row.code, quantity: row.quantity }))
+                    // FIX: Convert quantity to a number before sending it to the server.
+                    // Use parseInt to ensure it's an integer, and default to 0 if it's not a valid number.
+                    payload: quantityData.map(row => ({ 
+                        code: String(row.code), 
+                        quantity: parseInt(row.quantity, 10) || 0 
+                    }))
                 };
                 const response = await fetch(SCRIPT_URL, { method: 'POST', mode: 'cors', body: JSON.stringify(payloadForServer) });
                 if (!response.ok) throw new Error(`Server returned an error: ${response.statusText}`);
@@ -208,11 +239,12 @@
             if (!barcodeData) return showMessage('Error: Please upload a Barcode file.', 'error');
             const button = document.getElementById('validateDownloadButton');
             button.disabled = true;
-            showMessage('Validating on server... Please wait.', 'info');
+            showMessage(`Validating ${barcodeData.length} barcodes on server... Please wait.`, 'info');
             try {
                 const payloadForServer = {
                     action: 'validateBarcodes',
                     sheetName: GOOGLE_SHEET_NAME_TO_USE,
+                    // This is correct as is, barcodes should be strings.
                     payload: barcodeData.map(row => String(row.barcode).trim())
                 };
                 const response = await fetch(SCRIPT_URL, { method: 'POST', mode: 'cors', body: JSON.stringify(payloadForServer) });
