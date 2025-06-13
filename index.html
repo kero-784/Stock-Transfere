@@ -9,242 +9,57 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-
-    <!-- MODERN UI STYLES - NO OTHER CHANGES BEYOND THIS BLOCK -->
+    <!-- STYLES ARE UNCHANGED -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
-
-        :root {
-            --primary-color: #005c97;
-            --secondary-color: #363795;
-            --success-color: #28a745;
-            --error-color: #dc3545;
-            --info-color: #17a2b8;
-            --light-bg: #f8f9fa;
-            --dark-text: #343a40;
-            --light-text: #6c757d;
-            --border-color: #dee2e6;
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-image: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            color: var(--dark-text);
-            -webkit-font-smoothing: antialiased;
-        }
-
-        .container {
-            background-color: #ffffff;
-            border-radius: 20px;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
-            padding: 40px;
-            width: 100%;
-            max-width: 800px;
-            text-align: center;
-            margin-top: 20px;
-            margin-bottom: 20px;
-            position: relative;
-            border: 1px solid var(--border-color);
-        }
-
+        :root { --primary-color: #005c97; --secondary-color: #363795; --success-color: #28a745; --error-color: #dc3545; --info-color: #17a2b8; --light-bg: #f8f9fa; --dark-text: #343a40; --light-text: #6c757d; --border-color: #dee2e6; }
+        body { font-family: 'Poppins', sans-serif; background-image: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; color: var(--dark-text); -webkit-font-smoothing: antialiased; }
+        .container { background-color: #ffffff; border-radius: 20px; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08); padding: 40px; width: 100%; max-width: 800px; text-align: center; margin-top: 20px; margin-bottom: 20px; position: relative; border: 1px solid var(--border-color); }
         .page { display: none; }
-
-        h1 {
-            color: var(--dark-text);
-            margin-bottom: 8px;
-            font-weight: 700;
-        }
-
-        #kero-assistance {
-            font-size: 2.5em;
-        }
-
-        .subtitle {
-            font-size: 1.8em;
-            font-weight: 600;
-            color: var(--primary-color);
-        }
-        
-        .container > p {
-            color: var(--light-text);
-            font-size: 1.1em;
-            margin-bottom: 30px;
-        }
-
-        .section {
-            margin-bottom: 30px;
-            padding: 25px 0;
-            border: none;
-            border-top: 1px solid var(--border-color);
-            background-color: transparent;
-        }
-
-        .instructions {
-            font-size: 0.9em;
-            color: #0c5460;
-            background-color: #d1ecf1;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #bee5eb;
-            margin-bottom: 25px;
-            text-align: left;
-        }
-        .instructions strong {
-            color: #004085;
-        }
-
-        .location-container {
-            display: flex;
-            gap: 20px;
-            justify-content: space-around;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        
+        h1 { color: var(--dark-text); margin-bottom: 8px; font-weight: 700; }
+        #kero-assistance { font-size: 2.5em; }
+        .subtitle { font-size: 1.8em; font-weight: 600; color: var(--primary-color); }
+        .container > p { color: var(--light-text); font-size: 1.1em; margin-bottom: 30px; }
+        .section { margin-bottom: 30px; padding: 25px 0; border: none; border-top: 1px solid var(--border-color); background-color: transparent; }
+        .instructions { font-size: 0.9em; color: #0c5460; background-color: #d1ecf1; padding: 15px; border-radius: 8px; border: 1px solid #bee5eb; margin-bottom: 25px; text-align: left; }
+        .instructions strong { color: #004085; }
+        .location-container { display: flex; gap: 20px; justify-content: space-around; align-items: center; margin-bottom: 15px; }
         input[type="file"] { display: none; }
-        
-        /* Modernized Button Styles */
-        button {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 500;
-            margin: 5px;
-            transition: all 0.25s ease-in-out;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-
-        button:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 92, 151, 0.2);
-        }
-        
-        button:disabled {
-            background-color: #ced4da;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .main-action-button {
-            font-size: 1.1rem;
-            font-weight: 600;
-            padding: 15px 35px;
-            background-color: var(--success-color);
-        }
-        .main-action-button:hover:not(:disabled) {
-             box-shadow: 0 6px 12px rgba(40, 167, 69, 0.25);
-        }
-
-        .home-button {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            margin: 15px 0;
-            padding: 20px;
-            font-size: 1.2em;
-            font-weight: 600;
-            background-color: #fff;
-            color: var(--primary-color);
-            border: 2px solid var(--border-color);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.04);
-        }
-        .home-button:hover {
-            border-color: var(--primary-color);
-            background-color: #f8f9fa;
-            color: var(--secondary-color);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.08);
-        }
-        
-        .home-nav-button {
-            background-color: var(--light-text);
-            position: absolute;
-            top: 25px;
-            left: 25px;
-            padding: 8px 16px;
-        }
-        .home-nav-button:hover {
-            background-color: var(--dark-text);
-        }
-
-        .message-display {
-            margin-top: 20px;
-            font-weight: 500;
-            min-height: 1.2em;
-            padding: 12px 18px;
-            border-radius: 8px;
-            text-align: left;
-            border: 1px solid transparent;
-        }
-        .message-display:before {
-            font-weight: 700;
-            margin-right: 10px;
-        }
+        button { background-color: var(--primary-color); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 500; margin: 5px; transition: all 0.25s ease-in-out; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0, 92, 151, 0.2); }
+        button:disabled { background-color: #ced4da; cursor: not-allowed; transform: none; box-shadow: none; }
+        .main-action-button { font-size: 1.1rem; font-weight: 600; padding: 15px 35px; background-color: var(--success-color); }
+        .main-action-button:hover:not(:disabled) { box-shadow: 0 6px 12px rgba(40, 167, 69, 0.25); }
+        .home-button { display: flex; align-items: center; justify-content: center; width: 100%; margin: 15px 0; padding: 20px; font-size: 1.2em; font-weight: 600; background-color: #fff; color: var(--primary-color); border: 2px solid var(--border-color); box-shadow: 0 4px 6px rgba(0,0,0,0.04); }
+        .home-button:hover { border-color: var(--primary-color); background-color: #f8f9fa; color: var(--secondary-color); transform: translateY(-3px); box-shadow: 0 8px 15px rgba(0,0,0,0.08); }
+        .home-nav-button { background-color: var(--light-text); position: absolute; top: 25px; left: 25px; padding: 8px 16px; }
+        .home-nav-button:hover { background-color: var(--dark-text); }
+        .message-display { margin-top: 20px; font-weight: 500; min-height: 1.2em; padding: 12px 18px; border-radius: 8px; text-align: left; border: 1px solid transparent; word-break: break-word; }
+        .message-display:before { font-weight: 700; margin-right: 10px; }
         .message-display.success { color: #155724; background-color: #d4edda; border-color: #c3e6cb; }
         .message-display.success:before { content: "✔"; }
         .message-display.info { color: #0c5460; background-color: #d1ecf1; border-color: #bee5eb; }
         .message-display.info:before { content: "ℹ"; }
         .message-display.error { color: #721c24; background-color: #f8d7da; border-color: #f5c6cb; }
         .message-display.error:before { content: "⚠"; }
-
-        /* Select2 Modernization */
-        .select2-container--default .select2-selection--single {
-            border: 1px solid var(--border-color) !important;
-            border-radius: 8px !important;
-            height: 45px !important;
-            padding: 8px 12px !important;
-        }
-        .select2-container--default .select2-selection--single .select2-selection__rendered {
-            color: var(--dark-text) !important;
-            line-height: 28px !important;
-        }
-        .select2-container--default .select2-selection--single .select2-selection__arrow {
-            height: 43px !important;
-        }
-        .select2-dropdown {
-            border: 1px solid var(--border-color) !important;
-            border-radius: 8px !important;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-        }
-
-        .version {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            font-size: 0.8em;
-            color: #fff;
-            background-color: rgba(0, 0, 0, 0.4);
-            padding: 4px 8px;
-            border-radius: 12px;
-        }
+        .select2-container--default .select2-selection--single { border: 1px solid var(--border-color) !important; border-radius: 8px !important; height: 45px !important; padding: 8px 12px !important; }
+        .select2-container--default .select2-selection--single .select2-selection__rendered { color: var(--dark-text) !important; line-height: 28px !important; }
+        .select2-container--default .select2-selection--single .select2-selection__arrow { height: 43px !important; }
+        .select2-dropdown { border: 1px solid var(--border-color) !important; border-radius: 8px !important; box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
+        .version { position: fixed; bottom: 10px; right: 10px; font-size: 0.8em; color: #fff; background-color: rgba(0, 0, 0, 0.4); padding: 4px 8px; border-radius: 12px; }
     </style>
-    <!-- END OF MODERN UI STYLES -->
 </head>
-
 <body>
-    <div class="version">v 5.3</div>
+    <div class="version">v 7.0 Bound</div>
 
-    <!-- HTML structure is unchanged -->
     <div id="homePage" class="container page">
         <h1><span id="kero-assistance">Kero Assistance</span></h1>
-        <p>Please select a tool to continue.</p>
+        <p>Your secure, server-powered assistant. Please select a tool.</p>
         <div class="section">
             <button id="goToTransferBtn" class="home-button">Stock Transfer Management</button>
             <button id="goToValidatorBtn" class="home-button">Barcode Validator & Retriever</button>
         </div>
-        <div class="message-display"></div>
+        <div class="message-display info">Ready to go!</div>
     </div>
     <div id="stockTransferPage" class="container page">
         <button class="go-home-btn home-nav-button">Back to Home</button>
@@ -259,7 +74,7 @@
             <button id="uploadQuantityButton">Upload Quantity File</button>
             <button id="clearQuantity">Clear Quantity</button>
         </div>
-        <button id="processTransferButton" class="main-action-button" disabled>Process Transfer and Download</button>
+        <button id="processTransferButton" class="main-action-button">Process Transfer and Download</button>
         <div class="message-display"></div>
     </div>
     <div id="barcodeValidatorPage" class="container page">
@@ -271,17 +86,19 @@
             <button id="uploadBarcodeButton">Upload Barcode File</button>
             <button id="clearBarcodes">Clear Barcodes</button>
         </div>
-        <button id="validateDownloadButton" class="main-action-button" disabled>Validate Barcodes and Download</button>
+        <button id="validateDownloadButton" class="main-action-button">Validate Barcodes and Download</button>
         <div class="message-display"></div>
     </div>
 
-    <!-- JAVASCRIPT IS UNCHANGED -->
     <script>
-        let databaseData = null;
+        // ########## IMPORTANT: PASTE YOUR NEW WEB APP URL HERE ##########
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw1tyUemUsMGlGIEIrOzi-DmfaFhhv-Vb42EmOpv8BFQ9MM8VfO74sWozSeBfBsGxP2-A/exec';
+        
+        // Define the name of the sheet (tab) inside your Google Sheet file that you want to use.
+        const GOOGLE_SHEET_NAME_TO_USE = 'Products';
+
         let quantityData = null;
         let barcodeData = null;
-        const googleSheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQNrRFFRPe_jrOrDZM58gRqxfsA0deD60_q2jkA7XJRRfJQ7IiBdIqNDN7JdMawjw/pub?output=csv';
-
         const locations = [
             { id: "جاردنز 101", text: "جاردنز 101" }, { id: "تلال السخنة 102", text: "تلال السخنة 102" },
             { id: "ستيلا 103", text: "ستيلا 103" }, { id: "الدبلو 104", text: "الدبلو 104" },
@@ -295,22 +112,17 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             showPage('homePage');
-            fetchProductDatabase();
-            
             const locationOptions = [{ id: '', text: 'Select Location' }, ...locations];
             $('#locationFrom, #locationTo').select2({ data: locationOptions });
-            
             document.getElementById('goToTransferBtn').addEventListener('click', () => showPage('stockTransferPage'));
             document.getElementById('goToValidatorBtn').addEventListener('click', () => showPage('barcodeValidatorPage'));
             document.querySelectorAll('.go-home-btn').forEach(button => button.addEventListener('click', () => showPage('homePage')));
-            
             document.getElementById('uploadQuantityButton').addEventListener('click', () => document.getElementById('quantityFile').click());
-            document.getElementById('quantityFile').addEventListener('change', handleQuantityUpload);
+            document.getElementById('quantityFile').addEventListener('change', handleFileUpload);
             document.getElementById('clearQuantity').addEventListener('click', clearQuantity);
             document.getElementById('processTransferButton').addEventListener('click', processTransferData);
-
             document.getElementById('uploadBarcodeButton').addEventListener('click', () => document.getElementById('barcodeFile').click());
-            document.getElementById('barcodeFile').addEventListener('change', handleBarcodeUpload);
+            document.getElementById('barcodeFile').addEventListener('change', handleFileUpload);
             document.getElementById('clearBarcodes').addEventListener('click', clearBarcodes);
             document.getElementById('validateDownloadButton').addEventListener('click', processAndValidateBarcodes);
         });
@@ -321,197 +133,107 @@
             if (newPage) {
                 newPage.style.display = 'block';
                 const msgDiv = newPage.querySelector('.message-display');
-                if (msgDiv) {
-                     msgDiv.innerText = '';
-                     msgDiv.className = 'message-display';
-                }
+                if (msgDiv) { msgDiv.innerText = ''; msgDiv.className = 'message-display'; }
             }
         }
         
-        async function fetchProductDatabase() {
-            showMessage('Fetching product database from Google Sheet...', 'info');
-            try {
-                const response = await fetch(googleSheetURL);
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                const csvText = await response.text();
-                parseCSVDatabase(csvText);
-                showMessage('Product database loaded successfully! Ready to use.', 'success');
-                updateButtonStates();
-            } catch (error) {
-                showMessage(`Error loading database: ${error.message}. App cannot function.`, 'error');
-            }
-        }
-
-        function parseCSVDatabase(csvText) {
-            const rows = csvText.trim().split('\n');
-            databaseData = rows.map(row => row.split(',').map(cell => cell.trim()));
-            if (!databaseData || databaseData.length === 0) throw new Error("Parsed database CSV is empty.");
-            
-            const headers = databaseData[0].map(h => h.toLowerCase());
-            const requiredDbHeaders = ['code', 'barcode', 'name', 'supplier name'];
-            const missingHeaders = requiredDbHeaders.filter(h => !headers.includes(h));
-
-            if (missingHeaders.length > 0) {
-                 throw new Error(`Your Google Sheet is missing required column(s): [${missingHeaders.join(', ')}].`);
-            }
-        }
-
-        function handleQuantityUpload(event) { handleFileUpload(event, 'quantity'); }
-        function handleBarcodeUpload(event) { handleFileUpload(event, 'barcode'); }
-
-        function handleFileUpload(event, fileType) {
+        function handleFileUpload(event) {
             const file = event.target.files[0];
-            if (!file) { return; }
-
-            const isQuantityFile = fileType === 'quantity';
+            const isQuantityFile = event.target.id === 'quantityFile';
             const requiredHeaders = isQuantityFile ? ['code', 'quantity'] : ['barcode'];
             const friendlyName = isQuantityFile ? 'Quantity' : 'Barcode';
-
+            if (!file) { return; }
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
-                    if (!workbook.SheetNames || workbook.SheetNames.length === 0) { throw new Error("Excel file contains no sheets."); }
-                    
-                    const firstSheetName = workbook.SheetNames[0];
-                    const sheet = workbook.Sheets[firstSheetName];
-                    const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
-                    if (jsonData.length <= 1) { throw new Error(`The first sheet ("${firstSheetName}") is empty or has no data rows.`); }
-                    
-                    const headers = jsonData[0].map(header => String(header).toLowerCase().trim());
-                    const missingHeaders = requiredHeaders.filter(header => !headers.includes(header));
-                    if (missingHeaders.length > 0) { throw new Error(`The first sheet is missing required column(s): [${missingHeaders.join(', ')}].`); }
-                    
-                    if (isQuantityFile) { quantityData = jsonData; } 
-                    else { barcodeData = jsonData; }
-                    
+                    if (!workbook.SheetNames || workbook.SheetNames.length === 0) throw new Error("Excel file contains no sheets.");
+                    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+                    if (jsonData.length === 0) throw new Error(`The first sheet is empty.`);
+                    const headers = Object.keys(jsonData[0]).map(h => h.toLowerCase().trim());
+                    const missingHeaders = requiredHeaders.filter(h => !headers.includes(h));
+                    if (missingHeaders.length > 0) throw new Error(`File is missing required column(s): [${missingHeaders.join(', ')}].`);
+                    if (isQuantityFile) { quantityData = jsonData; } else { barcodeData = jsonData; }
                     showMessage(`${friendlyName} file uploaded successfully! Ready to process.`, 'success');
-
                 } catch (error) {
                     showMessage(`Upload Error: ${error.message}`, 'error');
-                    if (isQuantityFile) { quantityData = null; } 
-                    else { barcodeData = null; }
-                } finally {
-                    event.target.value = '';
-                }
+                    if (isQuantityFile) { quantityData = null; } else { barcodeData = null; }
+                } finally { event.target.value = ''; }
             };
-            reader.onerror = () => { showMessage(`Error reading file. It may be corrupt or in use.`, 'error'); }
+            reader.onerror = () => showMessage(`Error reading file.`, 'error');
             reader.readAsArrayBuffer(file);
         }
 
         function clearQuantity() { quantityData = null; showMessage('Quantity file has been cleared.', 'info'); }
         function clearBarcodes() { barcodeData = null; showMessage('Barcode file has been cleared.', 'info'); }
 
-        function updateButtonStates() {
-            if (databaseData) {
-                document.getElementById('processTransferButton').disabled = false;
-                document.getElementById('validateDownloadButton').disabled = false;
-            }
-        }
-        
-        function processTransferData() {
-            if (!databaseData) return showMessage('Error: The main product database has not loaded. Please refresh.', 'error');
-            const locationFromValue = document.getElementById('locationFrom').value;
-            const locationToValue = document.getElementById('locationTo').value;
-            if (!locationFromValue || !locationToValue) { return showMessage('Error: Please select both "Location From" and "Location To".', 'error'); }
-            if (!quantityData) { return showMessage('Error: Please upload a Quantity file before processing.', 'error'); }
-            
+        async function processTransferData() {
+            if (SCRIPT_URL.includes('PASTE_YOUR_NEW_DEPLOYED_WEB_APP_URL_HERE')) return showMessage('Configuration Error: The SCRIPT_URL has not been set in the HTML file.', 'error');
+            if (!quantityData) return showMessage('Error: Please upload a Quantity file.', 'error');
+            const locationFrom = document.getElementById('locationFrom').value;
+            const locationTo = document.getElementById('locationTo').value;
+            if (!locationFrom || !locationTo) return showMessage('Error: Please select both "From" and "To" locations.', 'error');
+            const button = document.getElementById('processTransferButton');
+            button.disabled = true;
+            showMessage('Processing on server... Please wait.', 'info');
             try {
-                const results = [], unmatched = [];
-                const dbHeaders = databaseData[0].map(h => h.toLowerCase());
-                const codeColumnDb = dbHeaders.indexOf('code'), barcodeColumnDb = dbHeaders.indexOf('barcode'), nameColumnDb = dbHeaders.indexOf('name');
-                const quantityHeaders = quantityData[0].map(h => h.toLowerCase());
-                const codeColumnQuantity = quantityHeaders.indexOf('code'), quantityColumnQuantity = quantityHeaders.indexOf('quantity');
-                
-                for (let i = 1; i < quantityData.length; i++) {
-                    const codeToFind = String(quantityData[i][codeColumnQuantity]).trim();
-                    const quantity = quantityData[i][quantityColumnQuantity];
-                    if (!codeToFind || quantity === undefined || quantity === null || quantity === '') continue;
-                    let found = false;
-                    for (let j = 1; j < databaseData.length; j++) {
-                        const dbRow = databaseData[j];
-                        if (dbRow[codeColumnDb] !== undefined && String(dbRow[codeColumnDb]).trim() === codeToFind) {
-                            results.push([codeToFind, dbRow[barcodeColumnDb] || '', dbRow[nameColumnDb] || '', quantity]);
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) unmatched.push([codeToFind, quantity]);
-                }
-                
+                const payloadForServer = {
+                    action: 'processTransfer',
+                    sheetName: GOOGLE_SHEET_NAME_TO_USE,
+                    payload: quantityData.map(row => ({ code: row.code, quantity: row.quantity }))
+                };
+                const response = await fetch(SCRIPT_URL, { method: 'POST', mode: 'cors', body: JSON.stringify(payloadForServer) });
+                if (!response.ok) throw new Error(`Server returned an error: ${response.statusText}`);
+                const result = await response.json();
+                if (result.status === 'error') throw new Error(result.message);
                 const wb = XLSX.utils.book_new();
-                const wsResults = XLSX.utils.aoa_to_sheet([["Code", "Barcode", "Name", "Quantity"], ...results]);
+                const wsResults = XLSX.utils.aoa_to_sheet([["Code", "Barcode", "Name", "Quantity"], ...result.results]);
                 wsResults['!cols'] = [{ wch: 15 }, { wch: 20 }, { wch: 50 }, { wch: 10 }];
                 XLSX.utils.book_append_sheet(wb, wsResults, "Results");
-
-                if (unmatched.length > 0) {
-                    const wsUnmatched = XLSX.utils.aoa_to_sheet([["Code", "Quantity"], ...unmatched]);
+                if (result.unmatched && result.unmatched.length > 0) {
+                    const wsUnmatched = XLSX.utils.aoa_to_sheet([["Code", "Quantity"], ...result.unmatched]);
                     wsUnmatched['!cols'] = [{ wch: 15 }, { wch: 10 }];
                     XLSX.utils.book_append_sheet(wb, wsUnmatched, "Unmatched");
                 }
-
                 const formattedDate = new Date().toISOString().slice(0, 10);
-                XLSX.writeFile(wb, `من ${locationFromValue} الى ${locationToValue} ${formattedDate}.xlsx`);
+                XLSX.writeFile(wb, `من ${locationFrom} الى ${locationTo} ${formattedDate}.xlsx`);
                 showMessage('Success! Transfer data processed and results downloaded.', 'success');
-            } catch (error) { showMessage(`Error processing transfer data: ${error.message}`, 'error'); }
+            } catch (error) { showMessage(`Processing Error: ${error.message}`, 'error'); } finally { button.disabled = false; }
         }
         
-        function validateEAN(barcode) {
-            const code = String(barcode).trim(); if (!/^\d+$/.test(code)) return 'Invalid Characters'; if (code.length !== 13) return 'Invalid Length'; let sum = 0; for (let i = 0; i < 12; i++) { sum += (i % 2 === 0) ? parseInt(code[i]) : parseInt(code[i]) * 3; } const calculatedCheckDigit = (10 - (sum % 10)) % 10; return (calculatedCheckDigit === parseInt(code[12])) ? 'Valid' : 'Invalid Checksum';
-        }
-
-        function processAndValidateBarcodes() {
-            if (!databaseData) return showMessage('Error: The main product database has not loaded. Please refresh.', 'error');
-            if (!barcodeData) { return showMessage('Error: Please upload a Barcode file before processing.', 'error'); }
-
+        async function processAndValidateBarcodes() {
+            if (SCRIPT_URL.includes('PASTE_YOUR_NEW_DEPLOYED_WEB_APP_URL_HERE')) return showMessage('Configuration Error: The SCRIPT_URL has not been set in the HTML file.', 'error');
+            if (!barcodeData) return showMessage('Error: Please upload a Barcode file.', 'error');
+            const button = document.getElementById('validateDownloadButton');
+            button.disabled = true;
+            showMessage('Validating on server... Please wait.', 'info');
             try {
-                const results = [];
-                const dbHeaders = databaseData[0].map(h => h.toLowerCase());
-                const codeColumnDb = dbHeaders.indexOf('code');
-                const barcodeColumnDb = dbHeaders.indexOf('barcode');
-                const nameColumnDb = dbHeaders.indexOf('name');
-                const supplierNameColumnDb = dbHeaders.indexOf('supplier name');
-
-                const barcodeHeaders = barcodeData[0].map(h => h.toLowerCase());
-                const barcodeColumnFile = barcodeHeaders.indexOf('barcode');
-
-                for (let i = 1; i < barcodeData.length; i++) {
-                    const barcodeToFind = (barcodeData[i][barcodeColumnFile] !== undefined) ? String(barcodeData[i][barcodeColumnFile]).trim() : '';
-                    if (!barcodeToFind) continue;
-
-                    const validationStatus = validateEAN(barcodeToFind);
-                    let foundCode = 'Not Found', foundName = 'Not Found', foundSupplier = 'Not Found';
-
-                    for (let j = 1; j < databaseData.length; j++) {
-                        const dbRow = databaseData[j];
-                        if (dbRow[barcodeColumnDb] !== undefined && String(dbRow[barcodeColumnDb]).trim() === barcodeToFind) {
-                            foundCode = dbRow[codeColumnDb] || 'Not Found';
-                            foundName = dbRow[nameColumnDb] || 'Not Found';
-                            foundSupplier = dbRow[supplierNameColumnDb] || 'Not Found';
-                            break;
-                        }
-                    }
-                    results.push([barcodeToFind, validationStatus, foundCode, foundName, foundSupplier]);
-                }
-
+                const payloadForServer = {
+                    action: 'validateBarcodes',
+                    sheetName: GOOGLE_SHEET_NAME_TO_USE,
+                    payload: barcodeData.map(row => String(row.barcode).trim())
+                };
+                const response = await fetch(SCRIPT_URL, { method: 'POST', mode: 'cors', body: JSON.stringify(payloadForServer) });
+                if (!response.ok) throw new Error(`Server returned an error: ${response.statusText}`);
+                const result = await response.json();
+                if (result.status === 'error') throw new Error(result.message);
                 const wb = XLSX.utils.book_new();
                 const header = ["Barcode", "Validation Status", "Code", "Name", "Supplier"];
-                const ws = XLSX.utils.aoa_to_sheet([header, ...results]);
+                const ws = XLSX.utils.aoa_to_sheet([header, ...result.results]);
                 ws['!cols'] = [{ wch: 20 }, { wch: 20 }, { wch: 15 }, { wch: 50 }, { wch: 30 }];
                 XLSX.utils.book_append_sheet(wb, ws, "Validation Results");
-
                 const formattedDate = new Date().toISOString().slice(0, 10);
                 XLSX.writeFile(wb, `Barcode_Validation_Results_${formattedDate}.xlsx`);
                 showMessage('Success! Barcodes validated and results downloaded.', 'success');
-            } catch (error) { showMessage(`Error processing barcodes: ${error.message}`, 'error'); }
+            } catch (error) { showMessage(`Processing Error: ${error.message}`, 'error'); } finally { button.disabled = false; }
         }
 
         function showMessage(message, type = 'info') {
             let messageDiv = document.querySelector('.page[style*="block"] .message-display');
             if (!messageDiv) { messageDiv = document.querySelector('#homePage .message-display'); }
-            if (!messageDiv) { return; }
-
+            if (!messageDiv) return;
             messageDiv.innerText = message;
             messageDiv.className = 'message-display';
             if (type === 'success') { messageDiv.classList.add('success'); }
